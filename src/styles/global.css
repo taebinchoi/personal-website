@@ -1,0 +1,97 @@
+@import '@fontsource-variable/archivo/wdth.css';
+@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+
+:root {
+  /* 색 */
+  --bg: #101011;
+  --fg: #ECEAE4;
+  --fg-2: #C9C7C1; /* 본문 */
+  --fg-3: #9C9A94; /* 작은 정보 */
+  --fg-4: #8A8882; /* 비활성 메뉴, 흐르는 글자 */
+  --surface: #18181A;
+  --burgundy: #7A1F3D;
+  --violet: #5B2E9E;
+  --navy: #22357A;
+  --blend: linear-gradient(180deg, var(--burgundy), var(--violet), var(--navy), var(--burgundy));
+
+  /* 글자 크기 5단계 */
+  --fs-display: clamp(52px, 9vw, 136px);
+  --fs-xl: clamp(32px, 5vw, 68px);
+  --fs-l: clamp(20px, 1.6vw, 22px);
+  --fs-m: 17px;
+  --fs-s: 14px;
+
+  /* 여백 */
+  --pad-x: clamp(20px, 4vw, 56px);
+  --rail: 6px;
+  --sidebar: 260px;
+
+  --font: 'Archivo Variable', 'Pretendard Variable', 'Pretendard', system-ui, sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-io: cubic-bezier(.7, 0, .2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  scrollbar-width: none;
+  -webkit-text-size-adjust: 100%;
+}
+html::-webkit-scrollbar { display: none; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-stretch: 110%;
+  font-weight: 400;
+  font-size: var(--fs-m);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: lining-nums;
+}
+
+h1, h2, h3, p, dl, dd, figure { margin: 0; }
+p, h1, h2, h3, dd, li, a, span, button { word-break: keep-all; overflow-wrap: anywhere; }
+img, video { display: block; max-width: 100%; height: auto; }
+a { color: var(--fg); }
+a:hover { color: #fff; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* 밑줄 긋기 */
+.ul {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size .4s var(--ease);
+  padding-bottom: 2px;
+}
+.ul:hover, .ul:focus-visible { background-size: 100% 1px; }
+
+/* 페이지 제목: 쓸리듯 등장 */
+.page-title {
+  font-weight: 700;
+  font-size: var(--fs-display);
+  line-height: .9;
+  animation: wipein .8s var(--ease-io) .25s both;
+}
+@keyframes wipein { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 -10% 0); } }
+
+/* 줄 단위로 올라오기 */
+.rise { display: block; overflow: hidden; }
+.rise > span { display: block; animation: rise .8s var(--ease) both; }
+@keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+
+.page { padding-top: clamp(40px, 8vw, 104px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

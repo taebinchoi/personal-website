@@ -1,0 +1,38 @@
+---
+// 화면에 보일 때만 재생, 소리 없음, 반복. 원래 비율 그대로.
+interface Props { src: string; srcMobile?: string; poster?: string; width: number; height: number; label: string; }
+const { src, srcMobile, poster, width, height, label } = Astro.props;
+---
+<video
+  class="auto-video"
+  muted
+  loop
+  playsinline
+  preload="none"
+  poster={poster}
+  width={width}
+  height={height}
+  aria-label={label}
+  style={`aspect-ratio: ${width} / ${height}`}
+>
+  {srcMobile && <source src={srcMobile} type="video/mp4" media="(max-width: 760px)" />}
+  <source src={src} type="video/mp4" />
+</video>
+
+<style>
+  .auto-video { width: 100%; height: auto; background: var(--surface); }
+</style>
+
+<script>
+  const vids = document.querySelectorAll<HTMLVideoElement>('video.auto-video');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) {
+        const v = en.target as HTMLVideoElement;
+        if (en.isIntersecting) { v.muted = true; v.play().catch(() => {}); }
+        else v.pause();
+      }
+    }, { threshold: 0.25 });
+    vids.forEach((v) => io.observe(v));
+  }
+</script>

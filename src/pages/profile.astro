@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+
+// 프로필 내용은 여기서 고쳐요.
+const intro = ['[한 문장 자기소개 첫 줄]', '[둘째 줄]'];
+const blocks = [
+  { title: 'Education', lines: ['[학교 · 전공]'] },
+  { title: 'Tools', lines: ['TouchDesigner', 'Cinema 4D', 'Web'] },
+  { title: 'Now', lines: ['HCI 공부 중'] },
+];
+---
+<Base title="Profile">
+  <section class="page wrap">
+    <h1 class="page-title">Profile</h1>
+    <p class="lead">
+      {intro.map((line, i) => <span class="rise"><span style={`animation-delay:${0.45 + i * 0.1}s`}>{line}</span></span>)}
+    </p>
+    <div class="grid">
+      {blocks.map((b) => (
+        <div>
+          <h2>{b.title}</h2>
+          <p>{b.lines.map((l, i) => <>{i > 0 && <br />}{l}</>)}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .wrap { display: flex; flex-direction: column; gap: clamp(40px, 6vw, 64px); }
+  .lead { font-size: var(--fs-xl); line-height: 1.25; max-width: 900px; }
+  .grid { display: grid; gap: 40px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+  h2 { font-weight: 700; font-size: var(--fs-l); margin-bottom: 12px; }
+  .grid p { color: var(--fg-2); line-height: 1.8; }
+</style>

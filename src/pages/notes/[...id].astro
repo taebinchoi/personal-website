@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map((note) => ({ params: { id: note.id }, props: { note } }));
+}
+const { note } = Astro.props;
+const { Content } = await render(note);
+const d = note.data.date;
+const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+---
+<Base title={note.data.title} description={note.data.summary}>
+  <article class="page note">
+    <a class="ul back" href="/notes">Notes</a>
+    <h1>{note.data.title}</h1>
+    <time datetime={d.toISOString()}>{date}</time>
+    <div class="prose"><Content /></div>
+  </article>
+</Base>
+
+<style>
+  .note { display: flex; flex-direction: column; gap: 20px; max-width: 720px; }
+  .back { align-self: flex-start; font-size: var(--fs-s); color: var(--fg-3); }
+  h1 { font-weight: 700; font-size: var(--fs-xl); line-height: 1.1; }
+  time { font-size: var(--fs-s); color: var(--fg-3); }
+  .prose { margin-top: 24px; color: var(--fg-2); line-height: 1.85; }
+  .prose :global(p), .prose :global(ul), .prose :global(ol) { margin: 0 0 1.2em; }
+  .prose :global(h2) { font-size: var(--fs-l); color: var(--fg); margin: 2em 0 .6em; }
+  .prose :global(img) { margin: 1.6em 0; }
+  .prose :global(a) { color: var(--fg); }
+</style>

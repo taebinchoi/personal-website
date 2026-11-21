@@ -1,0 +1,103 @@
+---
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import AutoVideo from './AutoVideo.astro';
+
+interface Props { project: CollectionEntry<'projects'>; }
+const { project } = Astro.props;
+const d = project.data;
+const { Content } = await render(project);
+const id = `detail-${project.id}`;
+const facts = [
+  ['Year', d.year], ['Tools', d.tools], ['Type', d.type], ['Role', d.role],
+].filter(([, v]) => v);
+---
+<article class="project" id={project.id}>
+  <div class="head">
+    <h2>
+      <button class="ptitle" type="button" aria-expanded="false" aria-controls={id}>
+        <span class="lb">{d.title}</span>
+        <svg class="plus" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 2v18M2 11h18" stroke="currentColor" stroke-width="2" /></svg>
+      </button>
+    </h2>
+    {d.meta.length > 0 && <p class="meta">{d.meta.map((m) => <span>{m}</span>)}</p>}
+  </div>
+
+  {d.video && <AutoVideo {...d.video} />}
+  {!d.video && d.cover && (
+    <Image src={d.cover.src} alt={d.cover.alt} widths={[640, 1080, 1600, 2200]} sizes="(min-width: 900px) min(1120px, calc(100vw - 340px)), 100vw" class="cover" />
+  )}
+
+  <div class="drawer" id={id}>
+    <div class="drawer-inner">
+      <div class="detail">
+        {facts.length > 0 && (
+          <dl>
+            {facts.map(([k, v]) => (<><dt>{k}</dt><dd>{v}</dd></>))}
+          </dl>
+        )}
+        <div class="body">
+          <Content />
+          {d.links.length > 0 && (
+            <p class="links">{d.links.map((l) => <a class="ul" href={l.href}>{l.label}</a>)}</p>
+          )}
+        </div>
+      </div>
+      {d.gallery.length > 0 && (
+        <div class="gallery">
+          {d.gallery.map((g) => (
+            <Image src={g.src} alt={g.alt} widths={[480, 800, 1200]} sizes="(min-width: 900px) 360px, 100vw" loading="lazy" />
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 20px; }
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px; }
+  .ptitle {
+    all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 18px;
+    font: inherit; font-stretch: 110%; font-weight: 700; font-size: var(--fs-xl); line-height: 1.05; color: var(--fg);
+  }
+  .ptitle:focus-visible { outline: 2px solid var(--fg); outline-offset: 6px; }
+  .lb {
+    background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
+    background-position: 0 100%; background-size: 0% 2px; transition: background-size .4s var(--ease);
+  }
+  .ptitle:hover .lb { background-size: 100% 2px; }
+  .plus { flex: none; width: clamp(16px, 1.6vw, 22px); height: auto; transition: transform .4s var(--ease); }
+  .ptitle[aria-expanded='true'] .plus { transform: rotate(45deg); }
+  .meta { display: flex; gap: 20px; font-size: var(--fs-s); color: var(--fg-3); }
+  .cover { width: 100%; height: auto; }
+
+  .drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease); }
+  .drawer.open { grid-template-rows: 1fr; }
+  .drawer-inner { overflow: hidden; min-height: 0; }
+  .detail {
+    padding-top: 28px; display: grid; gap: 32px 48px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  }
+  dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 24px; align-content: start; font-size: var(--fs-m); }
+  dt { color: var(--fg-3); }
+  .body { display: flex; flex-direction: column; gap: 16px; color: var(--fg-2); line-height: 1.8; }
+  .body :global(p) { margin: 0; }
+  .links { display: flex; flex-wrap: wrap; gap: 20px; }
+  .links a { color: var(--fg); }
+  .gallery {
+    margin-top: 32px; display: grid; gap: 16px; align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  }
+  .gallery :global(img) { width: 100%; height: auto; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.ptitle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', String(open));
+      document.getElementById(btn.getAttribute('aria-controls')!)?.classList.toggle('open', open);
+    });
+  });
+</script>

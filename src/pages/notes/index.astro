@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const notes = (await getCollection('notes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+---
+<Base title="Notes">
+  <section class="page wrap">
+    <h1 class="page-title">Notes</h1>
+    {notes.length === 0 ? (
+      <p class="empty">HCI 공부와 리서치 기록을 쓰는 중이에요.</p>
+    ) : (
+      <ul>
+        {notes.map((n) => (
+          <li>
+            <a href={`/notes/${n.id}`}>
+              <span class="t">{n.data.title}</span>
+              <time datetime={n.data.date.toISOString()}>{fmt(n.data.date)}</time>
+            </a>
+            {n.data.summary && <p>{n.data.summary}</p>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Base>
+
+<style>
+  .wrap { display: flex; flex-direction: column; gap: clamp(40px, 6vw, 48px); }
+  .empty { color: var(--fg-2); }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
+  li a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: baseline; text-decoration: none; }
+  .t { font-weight: 700; font-size: var(--fs-xl); line-height: 1.1; color: var(--fg); }
+  @supports (animation-timeline: view()) {
+    .t {
+      color: transparent; -webkit-text-stroke: 1px var(--fg);
+      animation: fill linear both; animation-timeline: view(); animation-range: entry 20% cover 45%;
+    }
+  }
+  @keyframes fill { from { color: transparent; } to { color: var(--fg); } }
+  time { font-size: var(--fs-s); color: var(--fg-3); font-variant-numeric: tabular-nums; }
+  li p { margin-top: 10px; color: var(--fg-2); max-width: 640px; }
+  @media (max-width: 599px) { li a { grid-template-columns: 1fr; } }
+</style>
