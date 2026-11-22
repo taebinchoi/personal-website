@@ -5,10 +5,12 @@ const { src, srcMobile, poster, width, height, label } = Astro.props;
 ---
 <video
   class="auto-video"
+  autoplay
   muted
   loop
   playsinline
-  preload="none"
+  disablepictureinpicture
+  preload="auto"
   poster={poster}
   width={width}
   height={height}
@@ -24,15 +26,24 @@ const { src, srcMobile, poster, width, height, label } = Astro.props;
 </style>
 
 <script>
+  // Safari 등은 muted 속성만으로 부족할 때가 있어 속성과 값을 모두 확실히 맞추고, 준비되면 다시 재생을 시도해요.
   const vids = document.querySelectorAll<HTMLVideoElement>('video.auto-video');
+  const tryPlay = (v: HTMLVideoElement) => { v.muted = true; v.defaultMuted = true; v.play().catch(() => {}); };
+  vids.forEach((v) => {
+    v.setAttribute('muted', '');
+    v.addEventListener('canplay', () => { if (v.dataset.visible !== '0') tryPlay(v); });
+  });
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
       for (const en of entries) {
         const v = en.target as HTMLVideoElement;
-        if (en.isIntersecting) { v.muted = true; v.play().catch(() => {}); }
-        else v.pause();
+        v.dataset.visible = en.isIntersecting ? '1' : '0';
+        if (en.isIntersecting) tryPlay(v); else v.pause();
       }
-    }, { threshold: 0.25 });
+    }, { threshold: 0.2 });
     vids.forEach((v) => io.observe(v));
+  } else {
+    vids.forEach(tryPlay);
   }
+  addEventListener('pageshow', () => vids.forEach((v) => { if (v.dataset.visible !== '0') tryPlay(v); }));
 </script>

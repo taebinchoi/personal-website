@@ -93,6 +93,16 @@ a:hover { color: #fff; }
 
 .page { padding-top: clamp(40px, 8vw, 104px); }
 
+/* 모든 페이지가 같은 간격을 쓰도록: 제목 → 안내 문구 → 본문 */
+.page-intro {
+  margin-top: clamp(24px, 3vw, 36px);
+  max-width: 760px;
+  color: var(--fg-2);
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+}
+.page-body { margin-top: clamp(56px, 8vw, 96px); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

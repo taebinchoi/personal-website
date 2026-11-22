@@ -21,6 +21,7 @@ const projects = defineCollection({
       // 본문 아래 따로 두는 한 줄 (예: 확장 계획)
       note: z.object({ ko: z.string(), en: z.string().optional() }).optional(),
       credits: z.string().optional(), // 데이터 출처 등
+      site: z.object({ label: z.string(), href: z.string() }).optional(), // 정보 목록에 Site 항목으로 나와요
       // 대표 미디어: 영상 또는 이미지. 원래 비율 그대로 보여요.
       video: z
         .object({

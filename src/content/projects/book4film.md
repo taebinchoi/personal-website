@@ -30,9 +30,9 @@ gallery:
     alt: 현재 상영작 포스터 목록 화면
   - src: ./book4film/recommend.jpg
     alt: 감독과 장르를 기준으로 영화를 추천하는 화면
-links:
-  - label: book4film.art
-    href: "https://book4film.art"
+site:
+  label: book4film.art
+  href: "https://book4film.art"
 ---
 
 영화 후기를 기록하는 플랫폼이 많아지고 있는 동시에, 아날로그적인 요소에 대한 수요와 이를 갈망하고 추억하는 이들도 존재한다. 이 사이트는 이 생각에서 출발하여 '영화 기록 아카이빙을 할 수 있는 공간을 마련하되 기록한 내용을 책장에서 꺼낸다는 개념으로 접근해보면 어떨까?' 하는 생각에 시작되었다.

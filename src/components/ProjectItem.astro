@@ -37,11 +37,7 @@ const bilingual = enParas.length > 0;
           {facts.length > 0 && (
             <dl class="facts">
               {facts.map(([k, v]) => (<><dt>{k}</dt><dd>{v}</dd></>))}
-            </dl>
-          )}
-          {d.stack.length > 0 && (
-            <dl class="stack">
-              {d.stack.map((s) => (<div><dt>{s.label}</dt><dd>{s.items}</dd></div>))}
+              {d.site && (<><dt>Site</dt><dd><a class="ul" href={d.site.href} target="_blank" rel="noopener">{d.site.label}</a></dd></>)}
             </dl>
           )}
         </div>
@@ -69,11 +65,18 @@ const bilingual = enParas.length > 0;
             <p class="links">{d.links.map((l) => <a class="ul" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}</p>
           )}
         </div>
+        {d.stack.length > 0 && (
+          <dl class="stack">
+            {d.stack.map((s) => (<div><dt>{s.label}</dt><dd>{s.items}</dd></div>))}
+          </dl>
+        )}
       </div>
       {d.gallery.length > 0 && (
         <div class="gallery">
           {d.gallery.map((g) => (
-            <Image src={g.src} alt={g.alt} class={g.wide ? 'wide' : undefined} widths={[480, 800, 1200, 1600, 2200]} sizes={g.wide ? '(min-width: 900px) min(1680px, calc(100vw - 340px)), 100vw' : '(min-width: 900px) 50vw, 100vw'} loading="lazy" />
+            <figure class={g.wide ? 'shot wide' : 'shot'}>
+              <Image src={g.src} alt={g.alt} widths={[480, 800, 1200, 1600, 2200]} sizes={g.wide ? '(min-width: 900px) min(1680px, calc(100vw - 340px)), 100vw' : '(min-width: 900px) 40vw, 100vw'} loading="lazy" />
+            </figure>
           ))}
         </div>
       )}
@@ -111,7 +114,11 @@ const bilingual = enParas.length > 0;
   .side-info { display: flex; flex-direction: column; gap: 28px; }
   .facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 24px; align-content: start; }
   dt { color: var(--fg-3); }
-  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .stack {
+    grid-column: 1 / -1; display: grid; gap: 20px 48px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 700px) { .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .stack dt { color: var(--fg); font-weight: 700; margin-bottom: 2px; }
   .stack dd { color: var(--fg-2); line-height: 1.6; }
 
@@ -140,8 +147,15 @@ const bilingual = enParas.length > 0;
     grid-template-columns: minmax(0, 1fr);
   }
   @media (min-width: 700px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .gallery :global(img) { width: 100%; height: auto; }
-  .gallery :global(img.wide) { grid-column: 1 / -1; }
+  .shot { margin: 0; }
+  .shot.wide { grid-column: 1 / -1; }
+  .shot :global(img) { width: 100%; height: auto; }
+  /* 크기가 다른 화면 캡처는 같은 크기의 바탕 위에 잘리지 않게 놓아 줄을 맞춰요 */
+  .shot:not(.wide) {
+    aspect-ratio: 4 / 3; background: var(--surface); padding: clamp(14px, 2vw, 28px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .shot:not(.wide) :global(img) { width: 100%; height: 100%; object-fit: contain; }
 </style>
 
 <script>
