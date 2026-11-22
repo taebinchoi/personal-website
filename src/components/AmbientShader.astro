@@ -34,7 +34,7 @@ return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f
 float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.02;a*=.5;}return v;}
 void main(){
   vec2 uv=gl_FragCoord.xy/r;vec2 q=uv*vec2(r.x/r.y,1.)*1.6;
-  float s=t*.035;
+  float s=t*.05;
   vec2 w=vec2(fbm(q+vec2(s,-s*.7)),fbm(q+vec2(-s*.6,s)+3.1));
   float f=fbm(q+1.8*w+s*.5);
   vec3 bg=vec3(.063,.063,.067);
@@ -43,7 +43,6 @@ void main(){
   float m=smoothstep(1.15,.05,distance(uv,vec2(1.,0.)));
   m*=.55+.45*f;
   vec3 col=mix(bg,c,m*.55);
-  col+= (h(gl_FragCoord.xy+t)-.5)*.035;
   gl_FragColor=vec4(col,1.);
 }`;
     const sh = (type: number, src: string) => { const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
