@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import Alternate from '../components/Alternate.astro';
+---
+<Base title="404">
+  <section class="page">
+    <h1 class="page-title">404</h1>
+    <p class="page-intro rise"><span style="animation-delay:.45s">
+      <Alternate ko="찾는 페이지가 없어요." en="This page doesn't exist." />
+    </span></p>
+    <p class="page-body back"><a class="ul" href="/">Portfolio</a></p>
+  </section>
+</Base>
+
+<style>
+  .back { font-size: var(--fs-xl); line-height: 1.1; }
+</style>
