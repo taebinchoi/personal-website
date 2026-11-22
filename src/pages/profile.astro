@@ -4,10 +4,19 @@ import Alternate from '../components/Alternate.astro';
 
 // 프로필 내용은 여기서 고쳐요.
 const intro = '기술과 예술의 융합과 적용을 이해하고 이를 기반으로 한 다양한 결과물을 창작하고, Human-Computer Interaction(HCI)에 관해 연구하고자 합니다.';
-const blocks = [
-  { title: 'Education', lines: ['European Language & Culture (Français)', '@ Sogang Univ.'] },
-  { title: 'Tools', lines: ['Pandas / NumPy / Gephi', 'TouchDesigner', 'Cinema 4D', 'Web (JS)'] },
-  { title: 'Now', lines: ['Planning an additional major in Art & Technology', 'Developing projects in various forms and directions', 'Planning AI-related academic activities'] },
+// 한 열(column) 안에 여러 묶음을 위아래로 쌓을 수 있어요.
+const columns = [
+  [
+    { title: 'Education', lines: ['European Language & Culture (Français)', '@ Sogang Univ.'] },
+    { title: 'Certificates', lines: ['ADsP', 'SQLD'] },
+    { title: 'Languages', lines: ['한국어', 'English', '中文', 'Français'] },
+  ],
+  [
+    { title: 'Tools', lines: ['Pandas / NumPy / Gephi', 'TouchDesigner', 'Cinema 4D', 'Web (JS)'] },
+  ],
+  [
+    { title: 'Now', lines: ['Planning an additional major in Art & Technology', 'Developing projects in various forms and directions', 'Planning AI-related academic activities'] },
+  ],
 ];
 const languages = {
   ko: '한국어, 영어, 그리고 간단한 중국어와 프랑스어를 통한 <br>협업 제안 및 피드백에 응답 및 소통 가능합니다.',
@@ -19,10 +28,14 @@ const languages = {
     <h1 class="page-title">Profile</h1>
     <p class="page-intro lead rise"><span style="animation-delay:.45s">{intro}</span></p>
     <div class="page-body grid">
-      {blocks.map((b) => (
-        <div>
-          <h2>{b.title}</h2>
-          <ul>{b.lines.map((l) => <li>{l}</li>)}</ul>
+      {columns.map((col) => (
+        <div class="col">
+          {col.map((b) => (
+            <div>
+              <h2>{b.title}</h2>
+              <ul>{b.lines.map((l) => <li>{l}</li>)}</ul>
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -33,6 +46,7 @@ const languages = {
 <style>
   .lead { font-size: clamp(21px, 2.2vw, 30px); line-height: 1.5; max-width: 860px; color: var(--fg); text-wrap: pretty; }
   .grid { display: grid; gap: 36px 40px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .col { display: flex; flex-direction: column; gap: 36px; }
   h2 { font-weight: 700; font-size: clamp(20px, 1.9vw, 26px); margin-bottom: 12px; }
   .grid ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; color: var(--fg-2); line-height: 1.55; font-size: var(--fs-lead); }
   .langs { margin-top: clamp(48px, 6vw, 72px); color: var(--fg-2); font-size: var(--fs-lead); line-height: 1.7; max-width: 760px; }
