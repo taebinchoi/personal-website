@@ -5,8 +5,11 @@ import Alternate from '../components/Alternate.astro';
 import { getCollection } from 'astro:content';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+// 첫 작업의 정지 이미지를 가장 먼저 받아서 첫 화면이 빨리 뜨게
+const firstPoster = projects[0]?.data.video?.poster;
 ---
 <Base>
+  {firstPoster && <link slot="head" rel="preload" as="image" href={firstPoster} fetchpriority="high" />}
   <section class="page">
     <h1 class="page-title">Portfolio</h1>
     <p class="page-intro rise"><span style="animation-delay:.45s">
