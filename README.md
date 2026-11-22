@@ -41,4 +41,4 @@ ffmpeg -i 작업-1080.mp4 -an -vf scale=1280:-2 -c:v libx264 -b:v 1400k -movflag
 ## 배포 (Cloudflare Pages)
 GitHub 저장소에 올린 뒤 Cloudflare Pages에서 연결하고
 빌드 명령 `npm run build`, 출력 폴더 `dist`로 설정하면 돼요.
-도메인이 정해지면 `astro.config.mjs`의 `site`를 바꿔 주세요.
+도메인: taebinchoi.com (Cloudflare Registrar)
