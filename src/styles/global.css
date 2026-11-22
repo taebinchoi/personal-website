@@ -18,6 +18,7 @@
   --fs-display: clamp(52px, 6.5vw, 100px);
   --fs-xl: clamp(32px, 4vw, 56px);
   --fs-l: clamp(20px, 1.6vw, 22px);
+  --fs-lead: clamp(17px, 1.4vw, 20px); /* 안내 문구, 프로필 항목 */
   --fs-m: 17px;
   --fs-s: clamp(14px, 1.1vw, 16px);
 

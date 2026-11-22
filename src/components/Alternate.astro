@@ -1,0 +1,31 @@
+---
+// 한국어와 영어 문장이 천천히 번갈아 나타나요. 두 문장 중 긴 쪽 높이에 맞춰 자리를 잡아서 화면이 흔들리지 않아요.
+// <br> 로 줄을 나눌 수 있어요.
+interface Props { ko: string; en: string; }
+const { ko, en } = Astro.props;
+---
+<span class="alt">
+  <span class="item ko" lang="ko" set:html={ko} />
+  <span class="item en" lang="en" set:html={en} />
+</span>
+
+<style>
+  .alt { display: inline-grid; vertical-align: top; }
+  .item { grid-area: 1 / 1; animation: show-ko 12s ease-in-out infinite; text-wrap: balance; }
+  .en { animation-name: show-en; }
+  @keyframes show-ko {
+    0%, 44% { opacity: 1; transform: none; }
+    50%, 94% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes show-en {
+    0%, 44% { opacity: 0; transform: translateY(4px); }
+    50%, 94% { opacity: 1; transform: none; }
+    100% { opacity: 0; transform: translateY(4px); }
+  }
+  /* 폰에서는 지정한 줄바꿈 대신 화면 폭에 맞춰 자연스럽게 */
+  @media (max-width: 640px) { .item :global(br) { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .en { visibility: hidden; }
+  }
+</style>

@@ -7,7 +7,7 @@ const links = [
   { label: 'Instagram', href: site.links.instagram },
   { label: 'GitHub', href: site.links.github },
   { label: 'CV', href: site.links.cv },
-];
+].filter((l) => l.href);
 ---
 <Base title="Contact">
   <section class="page wrap">

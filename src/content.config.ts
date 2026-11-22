@@ -14,6 +14,13 @@ const projects = defineCollection({
       tools: z.string().optional(),
       type: z.string().optional(),
       role: z.string().optional(),
+      // 기술 스택처럼 묶어서 보여 줄 항목 (굵은 제목 + 내용)
+      stack: z.array(z.object({ label: z.string(), items: z.string() })).default([]),
+      // 영어 설명 (본문 마크다운이 한국어). 있으면 한국어/영어 토글이 생겨요. 빈 줄로 문단을 나눠요.
+      en: z.string().optional(),
+      // 본문 아래 따로 두는 한 줄 (예: 확장 계획)
+      note: z.object({ ko: z.string(), en: z.string().optional() }).optional(),
+      credits: z.string().optional(), // 데이터 출처 등
       // 대표 미디어: 영상 또는 이미지. 원래 비율 그대로 보여요.
       video: z
         .object({
@@ -26,7 +33,8 @@ const projects = defineCollection({
         })
         .optional(),
       cover: z.object({ src: image(), alt: z.string() }).optional(),
-      gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
+      // wide: true 이면 한 줄 전체를 차지해요
+      gallery: z.array(z.object({ src: image(), alt: z.string(), wide: z.boolean().default(false) })).default([]),
       links: z.array(z.object({ label: z.string(), href: z.string() })).default([]),
     }),
 });

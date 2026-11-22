@@ -2,13 +2,14 @@
 export const site = {
   name: 'Taebin Choi',
   title: 'Taebin Choi',
-  description: '[사이트 한 줄 설명]',
+  description: 'Taebin Choi Online Archiving site',
   year: 2026,
   links: {
-    email: 'mailto:[EMAIL]',
-    instagram: 'https://instagram.com/[ID]',
-    github: 'https://github.com/[ID]',
-    cv: '/cv.pdf',
+    email: 'mailto:hyperreal721@naver.com',
+    instagram: 'https://instagram.com/nonsilentday',
+    github: 'https://github.com/taebinchoi',
+    // CV 파일을 public/cv.pdf 로 넣은 뒤 '/cv.pdf' 로 바꾸면 Contact에 CV가 나타나요.
+    cv: '',
   },
 };
 

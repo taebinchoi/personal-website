@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import Alternate from '../../components/Alternate.astro';
 
 const notes = (await getCollection('notes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
@@ -8,9 +9,13 @@ const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart
 <Base title="Notes">
   <section class="page wrap">
     <h1 class="page-title">Notes</h1>
-    {notes.length === 0 ? (
-      <p class="empty">HCI 공부와 리서치 기록을 쓰는 중이에요.</p>
-    ) : (
+    <p class="intro rise"><span style="animation-delay:.45s">
+      <Alternate
+        ko="Human-Computer Interaction(HCI)를 포함해 여러 학술적 내용 및 <br>리서치 기록을 정리하기 위한 장소입니다."
+        en="This is a place for organizing various academic content <br>and research records, including Human-Computer Interaction (HCI)."
+      />
+    </span></p>
+    {notes.length > 0 && (
       <ul>
         {notes.map((n) => (
           <li>
@@ -28,7 +33,7 @@ const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart
 
 <style>
   .wrap { display: flex; flex-direction: column; gap: clamp(40px, 6vw, 48px); }
-  .empty { color: var(--fg-2); }
+  .intro { color: var(--fg-2); font-size: var(--fs-lead); line-height: 1.6; max-width: 760px; }
   ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
   li a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: baseline; text-decoration: none; }
   .t { font-weight: 700; font-size: var(--fs-xl); line-height: 1.1; color: var(--fg); }
