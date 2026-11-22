@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { site } from '../site.config';
+import AmbientShader from '../components/AmbientShader.astro';
 
 // show: 옆에 보여 줄 주소
 const links = [
@@ -11,6 +12,7 @@ const links = [
 ].filter((l) => l.href);
 ---
 <Base title="Contact">
+  <AmbientShader />
   <section class="page">
     <h1 class="page-title">Contact</h1>
     <ul class="list">
