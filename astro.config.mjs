@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://taebinchoi.com',
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
+  integrations: [sitemap({ filter: (page) => !page.includes('/404') })],
 });

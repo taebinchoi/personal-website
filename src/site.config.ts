@@ -4,6 +4,11 @@ export const site = {
   title: 'Taebin Choi',
   description: 'Taebin Choi Online Archiving site',
   year: 2026,
+  // 검색엔진 소유 확인 코드. 구글 Search Console / 네이버 서치어드바이저에서 받은 content 값만 넣으세요.
+  verify: {
+    google: '',
+    naver: '',
+  },
   links: {
     email: 'mailto:hyperreal721@naver.com',
     instagram: 'https://instagram.com/nonsilentday',

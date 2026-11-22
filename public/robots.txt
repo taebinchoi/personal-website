@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://taebinchoi.com/sitemap-index.xml

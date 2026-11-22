@@ -61,9 +61,10 @@ const bilingual = enParas.length > 0;
             </p>
           )}
           {d.credits && <p class="credits">{d.credits}</p>}
-          {d.links.length > 0 && (
-            <p class="links">{d.links.map((l) => <a class="ul" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}</p>
-          )}
+          <p class="links">
+            {d.links.map((l) => <a class="ul" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+            <button type="button" class="copy-link ul" data-id={project.id}><span class="cl-label">Copy link</span><span class="cl-done" aria-live="polite"></span></button>
+          </p>
         </div>
         {d.stack.length > 0 && (
           <dl class="stack">
@@ -129,6 +130,10 @@ const bilingual = enParas.length > 0;
   .credits { font-size: var(--fs-s); color: var(--fg-3); line-height: 1.6; }
   .links { display: flex; flex-wrap: wrap; gap: 20px; }
   .links a { color: var(--fg); }
+  .copy-link { all: unset; cursor: pointer; color: var(--fg-3); font-size: var(--fs-s); padding: 6px 0; }
+  .copy-link:hover { color: var(--fg); }
+  .copy-link:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .cl-done:not(:empty) { margin-left: 10px; color: var(--fg); }
 
   /* 언어 토글 */
   .lang-switch { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); color: var(--fg-4); }
@@ -159,21 +164,62 @@ const bilingual = enParas.length > 0;
 </style>
 
 <script>
+  // 펼치기 / 접기. 펼치면 주소 끝에 #작업이름 이 붙어서 그대로 공유할 수 있어요.
+  const setOpen = (btn: HTMLButtonElement, open: boolean) => {
+    btn.setAttribute('aria-expanded', String(open));
+    document.getElementById(btn.getAttribute('aria-controls')!)?.classList.toggle('open', open);
+  };
   document.querySelectorAll<HTMLButtonElement>('.ptitle').forEach((btn) => {
     btn.addEventListener('click', () => {
       const open = btn.getAttribute('aria-expanded') !== 'true';
-      btn.setAttribute('aria-expanded', String(open));
-      document.getElementById(btn.getAttribute('aria-controls')!)?.classList.toggle('open', open);
+      setOpen(btn, open);
+      const id = btn.closest('article')!.id;
+      if (open) history.replaceState(null, '', '#' + id);
+      else if (location.hash === '#' + id) history.replaceState(null, '', location.pathname);
     });
   });
-  document.querySelectorAll<HTMLElement>('.lang-switch').forEach((sw) => {
-    const detail = sw.closest<HTMLElement>('.detail')!;
-    sw.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
-      b.addEventListener('click', () => {
-        const lang = b.dataset.set!;
-        detail.dataset.lang = lang;
-        sw.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      });
+
+  // #작업이름 으로 들어오면 그 작업을 펼치고 그 위치로 이동
+  const openFromHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    const art = document.getElementById(id);
+    const btn = art?.querySelector<HTMLButtonElement>('.ptitle');
+    if (!art || !btn) return;
+    setOpen(btn, true);
+    requestAnimationFrame(() => art.scrollIntoView({ block: 'start' }));
+  };
+  openFromHash();
+  addEventListener('hashchange', openFromHash);
+
+  // 링크 복사
+  document.querySelectorAll<HTMLButtonElement>('.copy-link').forEach((b) => {
+    b.addEventListener('click', async () => {
+      const url = location.origin + '/#' + b.dataset.id;
+      const done = b.querySelector('.cl-done')!;
+      try { await navigator.clipboard.writeText(url); done.textContent = 'Copied'; }
+      catch { done.textContent = url; }
+      setTimeout(() => (done.textContent = ''), 2000);
+    });
+  });
+
+  // 언어 토글: 기본은 적힌 그대로(한국어). 사용자가 직접 바꾼 경우에만 모든 작업에 같이 적용하고 기억해요.
+  const KEY = 'lang';
+  const applyLang = (lang: string) => {
+    document.querySelectorAll<HTMLElement>('.lang-switch').forEach((sw) => {
+      const detail = sw.closest<HTMLElement>('.detail')!;
+      detail.dataset.lang = lang;
+      sw.querySelectorAll<HTMLButtonElement>('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.set === lang)));
+    });
+  };
+  let saved: string | null = null;
+  try { saved = localStorage.getItem(KEY); } catch {}
+  if (saved === 'en') applyLang('en');
+  document.querySelectorAll<HTMLButtonElement>('.lang-switch button').forEach((b) => {
+    b.addEventListener('click', () => {
+      const lang = b.dataset.set!;
+      applyLang(lang);
+      try { localStorage.setItem(KEY, lang); } catch {}
     });
   });
 </script>

@@ -4,7 +4,7 @@ import { site } from '../site.config';
 
 // show: 옆에 보여 줄 주소
 const links = [
-  { label: 'Email', href: site.links.email, show: site.links.email.replace('mailto:', '') },
+  { label: 'Email', href: site.links.email, show: site.links.email.replace('mailto:', ''), copy: true },
   { label: 'Instagram', href: site.links.instagram, show: '@' + site.links.instagram.split('/').filter(Boolean).pop() },
   { label: 'GitHub', href: site.links.github, show: site.links.github.replace('https://', '') },
   { label: 'CV', href: site.links.cv, show: 'PDF' },
@@ -16,15 +16,34 @@ const links = [
     <ul class="list">
       {links.map((l) => (
         <li>
-          <a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel={l.href.startsWith('http') ? 'noopener' : undefined}>
+          <a href={l.href} data-copy={l.copy ? l.show : undefined} target={l.href.startsWith('http') ? '_blank' : undefined} rel={l.href.startsWith('http') ? 'noopener' : undefined}>
             <span class="label">{l.label}</span>
-            <span class="addr">{l.show}</span>
+            <span class="addr" aria-live="polite">{l.show}</span>
           </a>
         </li>
       ))}
     </ul>
   </section>
 </Base>
+
+<script>
+  // Email은 누르면 주소가 복사돼요. 복사가 안 되는 환경에서는 원래대로 메일 앱이 열려요.
+  document.querySelectorAll<HTMLAnchorElement>('a[data-copy]').forEach((a) => {
+    a.addEventListener('click', async (e) => {
+      const text = a.dataset.copy!;
+      const addr = a.querySelector<HTMLElement>('.addr')!;
+      try {
+        e.preventDefault();
+        await navigator.clipboard.writeText(text);
+        addr.textContent = 'Copied';
+        a.classList.add('copied');
+        setTimeout(() => { addr.textContent = text; a.classList.remove('copied'); }, 1600);
+      } catch {
+        location.href = a.href;
+      }
+    }, true);
+  });
+</script>
 
 <style>
   .list { list-style: none; margin: clamp(24px, 3vw, 36px) 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
@@ -35,6 +54,7 @@ const links = [
     background-position: 0 100%; background-size: 0% 2px; transition: background-size .4s var(--ease);
   }
   .addr { font-size: var(--fs-lead); color: var(--fg-3); }
+  a.copied .addr { color: var(--fg); clip-path: none !important; }
 
   /* 마우스가 있는 화면: 올리면 주소가 쓸리듯 나타나요 */
   @media (hover: hover) {

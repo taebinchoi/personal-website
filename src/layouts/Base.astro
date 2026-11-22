@@ -34,6 +34,9 @@ const nameChars = [...site.name];
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  {site.verify.google && <meta name="google-site-verification" content={site.verify.google} />}
+  {site.verify.naver && <meta name="naver-site-verification" content={site.verify.naver} />}
   <script is:inline>
     try {
       if (sessionStorage.getItem('wipe') === '1') {
