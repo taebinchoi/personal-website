@@ -1,0 +1,123 @@
+---
+// 이미지·영상 크게 보기. data-zoom 이 붙은 이미지·영상을 누르면 화면 가득 열려요.
+// 같은 작업 안의 이미지끼리는 ← → (또는 화면 양옆 버튼)로 넘겨 볼 수 있어요. Esc 또는 바깥을 누르면 닫혀요.
+---
+<dialog class="lightbox" aria-label="크게 보기 / Enlarged view">
+  <div class="stage"></div>
+  <button type="button" class="lb-btn lb-close" aria-label="닫기 / Close">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4l14 14M18 4L4 18" stroke="currentColor" stroke-width="2" /></svg>
+  </button>
+  <button type="button" class="lb-btn lb-prev" aria-label="이전 / Previous">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M14 3l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+  </button>
+  <button type="button" class="lb-btn lb-next" aria-label="다음 / Next">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M8 3l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+  </button>
+  <p class="lb-count" aria-live="polite"></p>
+</dialog>
+
+<style>
+  .lightbox {
+    width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0;
+    background: rgba(10, 10, 11, .97); color: var(--fg); overflow: hidden;
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .lightbox::backdrop { background: rgba(10, 10, 11, .6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .lightbox[open] { animation: lb-in .35s var(--ease); }
+  @keyframes lb-in { from { opacity: 0; } to { opacity: 1; } }
+  .stage {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: clamp(56px, 7vh, 88px) clamp(16px, 6vw, 96px);
+  }
+  .stage :global(img), .stage :global(video) {
+    max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block;
+  }
+  .lb-btn {
+    all: unset; position: absolute; cursor: pointer; width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center; color: var(--fg-2); border-radius: 50%;
+  }
+  .lb-btn:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+  .lb-btn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .lb-close { top: 12px; right: 16px; }
+  .lb-prev { left: 12px; top: 50%; translate: 0 -50%; }
+  .lb-next { right: 16px; top: 50%; translate: 0 -50%; }
+  .lb-count { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: var(--fs-s); color: var(--fg-3); margin: 0; font-variant-numeric: tabular-nums; }
+  .lightbox:not(.multi) .lb-prev, .lightbox:not(.multi) .lb-next, .lightbox:not(.multi) .lb-count { display: none; }
+  :global([data-zoom]) { cursor: zoom-in; }
+</style>
+
+<script>
+  const dlg = document.querySelector<HTMLDialogElement>('dialog.lightbox')!;
+  const stage = dlg.querySelector<HTMLElement>('.stage')!;
+  const count = dlg.querySelector<HTMLElement>('.lb-count')!;
+  let group: HTMLElement[] = [];
+  let idx = 0;
+  let paused: HTMLVideoElement | null = null;
+
+  // srcset 중 가장 큰 이미지 주소
+  const largest = (img: HTMLImageElement) => {
+    const set = img.getAttribute('srcset');
+    if (!set) return img.currentSrc || img.src;
+    const items = set.split(',').map((s) => s.trim().split(/\s+/)).map(([u, w]) => ({ u, w: parseInt(w) || 0 }));
+    items.sort((a, b) => b.w - a.w);
+    return items[0].u;
+  };
+
+  const show = (i: number) => {
+    idx = (i + group.length) % group.length;
+    const el = group[idx];
+    stage.replaceChildren();
+    if (el instanceof HTMLVideoElement) {
+      const v = document.createElement('video');
+      v.src = el.currentSrc || el.querySelector('source')?.getAttribute('data-src') || '';
+      v.muted = true; v.loop = true; v.controls = true; v.playsInline = true; v.autoplay = true;
+      v.setAttribute('aria-label', el.getAttribute('aria-label') || '');
+      if (el.currentTime) v.currentTime = el.currentTime;
+      stage.append(v);
+      v.play().catch(() => {});
+    } else if (el instanceof HTMLImageElement) {
+      const img = document.createElement('img');
+      img.src = largest(el); img.alt = el.alt; img.decoding = 'async';
+      stage.append(img);
+    }
+    count.textContent = `${idx + 1} / ${group.length}`;
+  };
+
+  const open = (el: HTMLElement) => {
+    const scope = el.closest('article') || document.body;
+    group = [...scope.querySelectorAll<HTMLElement>('[data-zoom]')];
+    dlg.classList.toggle('multi', group.length > 1);
+    if (el instanceof HTMLVideoElement && !el.paused) { el.pause(); paused = el; }
+    dlg.showModal();
+    show(group.indexOf(el));
+  };
+
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-zoom]');
+    if (el && !dlg.open) { e.preventDefault(); open(el); }
+  });
+  document.addEventListener('keydown', (e) => {
+    const el = (e.target as HTMLElement).closest?.('[data-zoom]') as HTMLElement | null;
+    if (el && (e.key === 'Enter' || e.key === ' ') && !dlg.open) { e.preventDefault(); open(el); }
+  });
+
+  dlg.querySelector('.lb-close')!.addEventListener('click', () => dlg.close());
+  dlg.querySelector('.lb-prev')!.addEventListener('click', () => show(idx - 1));
+  dlg.querySelector('.lb-next')!.addEventListener('click', () => show(idx + 1));
+  dlg.addEventListener('click', (e) => { if (e.target === dlg || e.target === stage) dlg.close(); });
+  dlg.addEventListener('keydown', (e) => {
+    if (group.length > 1 && e.key === 'ArrowRight') show(idx + 1);
+    if (group.length > 1 && e.key === 'ArrowLeft') show(idx - 1);
+  });
+  // 폰: 좌우로 밀어서 넘기기
+  let sx = 0;
+  dlg.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+  dlg.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - sx;
+    if (group.length > 1 && Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1));
+  });
+  dlg.addEventListener('close', () => {
+    stage.replaceChildren();
+    if (paused) { paused.play().catch(() => {}); paused = null; }
+  });
+</script>
