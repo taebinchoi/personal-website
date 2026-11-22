@@ -1,6 +1,6 @@
 ---
 // 화면에 보일 때만 재생, 소리 없음, 반복. 원래 비율 그대로.
-// 영상 파일은 페이지의 글자·이미지가 다 뜬 뒤에 받기 시작해서 첫 화면이 빨리 떠요. 그동안은 정지 이미지(poster)가 보여요.
+// 화면 근처에 온 영상만 받기 시작해요. 받는 동안은 정지 이미지(poster)가 보여요.
 interface Props { src: string; srcMobile?: string; poster?: string; width: number; height: number; label: string; }
 const { src, srcMobile, poster, width, height, label } = Astro.props;
 ---
@@ -15,8 +15,6 @@ const { src, srcMobile, poster, width, height, label } = Astro.props;
   width={width}
   height={height}
   aria-label={label}
-  data-zoom
-  tabindex="0"
   style={`aspect-ratio: ${width} / ${height}`}
 >
   {srcMobile && <source data-src={srcMobile} type="video/mp4" media="(max-width: 760px)" />}
@@ -36,6 +34,7 @@ const { src, srcMobile, poster, width, height, label } = Astro.props;
     v.setAttribute('muted', '');
     v.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((s) => { s.src = s.dataset.src!; });
     v.preload = 'auto';
+    v.autoplay = true;
     v.addEventListener('canplay', () => { if (v.dataset.visible !== '0') tryPlay(v); });
     v.load();
   };
@@ -56,7 +55,7 @@ const { src, srcMobile, poster, width, height, label } = Astro.props;
     vids.forEach((v) => { near.observe(v); seen.observe(v); });
   };
 
-  if (document.readyState === 'complete') start();
-  else addEventListener('load', start, { once: true });
+  // 화면에 보이는 영상은 바로 받기 시작해서 들어오자마자 재생돼요 (정지 이미지는 먼저 떠 있어요).
+  start();
   addEventListener('pageshow', () => vids.forEach((v) => { if (v.dataset.loaded && v.dataset.visible !== '0') tryPlay(v); }));
 </script>
