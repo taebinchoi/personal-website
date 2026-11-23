@@ -12,8 +12,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const marquee = [...projects.map((p) => p.data.title), 'HCI Notes'];
 const nameChars = [...site.name];
-// 사이트를 마지막으로 올린 날짜 (빌드할 때 자동으로 찍혀요)
-const updated = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' })
+// 사이트를 마지막으로 올린 연월 (빌드할 때 자동으로 찍혀요)
+const updated = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit' })
   .format(new Date()).replaceAll('-', '.');
 ---
 <!doctype html>
