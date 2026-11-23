@@ -30,7 +30,7 @@ const bilingual = enParas.length > 0;
     <Image src={d.cover.src} alt={d.cover.alt} widths={[640, 1080, 1600, 2200]} sizes="(min-width: 900px) min(1680px, calc(100vw - 340px)), 100vw" class="cover" />
   )}
 
-  <div class="drawer" id={id}>
+  <div class="drawer rest" id={id}>
     <div class="drawer-inner">
       <div class="detail" data-lang="ko">
         <div class="side-info">
@@ -76,7 +76,7 @@ const bilingual = enParas.length > 0;
         <div class="gallery">
           {d.gallery.map((g) => (
             <figure class={g.wide ? 'shot wide' : 'shot'}>
-              <Image src={g.src} alt={g.alt} widths={[480, 800, 1200, 1600, 2200]} sizes={g.wide ? '(min-width: 900px) min(1680px, calc(100vw - 340px)), 100vw' : '(min-width: 900px) 40vw, 100vw'} loading="lazy" />
+              <Image src={g.src} alt={g.alt} decoding="async" fetchpriority="low" widths={[480, 800, 1200, 1600, 2200]} sizes={g.wide ? '(min-width: 900px) min(1680px, calc(100vw - 340px)), 100vw' : '(min-width: 900px) 40vw, 100vw'} loading="lazy" />
             </figure>
           ))}
         </div>
@@ -106,6 +106,7 @@ const bilingual = enParas.length > 0;
   .drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease); }
   .drawer.open { grid-template-rows: 1fr; }
   .drawer-inner { overflow: hidden; min-height: 0; }
+  .drawer.rest .drawer-inner { content-visibility: hidden; }
   .detail {
     padding-top: 32px; display: grid; gap: 32px 56px;
     grid-template-columns: minmax(0, 1fr);
@@ -165,9 +166,21 @@ const bilingual = enParas.length > 0;
 
 <script>
   // 펼치기 / 접기. 펼치면 주소 끝에 #작업이름 이 붙어서 그대로 공유할 수 있어요.
+  // 버튼(+ → ×)은 바로 반응하고, 무거운 펼치기는 그다음 프레임에 시작해서 누른 순간 화면이 멈칫하지 않게 해요.
   const setOpen = (btn: HTMLButtonElement, open: boolean) => {
     btn.setAttribute('aria-expanded', String(open));
-    document.getElementById(btn.getAttribute('aria-controls')!)?.classList.toggle('open', open);
+    const drawer = document.getElementById(btn.getAttribute('aria-controls')!);
+    if (!drawer) return;
+    requestAnimationFrame(() => setTimeout(() => {
+      if (open) drawer.classList.remove('rest');
+      drawer.classList.toggle('open', open);
+    }, 0));
+    if (!open) {
+      // 닫히는 애니메이션이 끝나면 안 보이는 내용은 그리지 않도록
+      drawer.addEventListener('transitionend', () => {
+        if (!drawer.classList.contains('open')) drawer.classList.add('rest');
+      }, { once: true });
+    }
   };
   document.querySelectorAll<HTMLButtonElement>('.ptitle').forEach((btn) => {
     btn.addEventListener('click', () => {
