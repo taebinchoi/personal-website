@@ -11,6 +11,7 @@
   --surface: #18181A;
   --burgundy: #7A1F3D;
   --violet: #5B2E9E;
+  --focus: #A58BE6;
   --navy: #22357A;
   --blend: linear-gradient(180deg, var(--burgundy), var(--violet), var(--navy), var(--burgundy));
 
@@ -58,7 +59,9 @@ p, h1, h2, h3, dd, li, a, span, button { word-break: keep-all; overflow-wrap: an
 img, video { display: block; max-width: 100%; height: auto; }
 a { color: var(--fg); }
 a:hover { color: #fff; }
-:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; }
+/* 글자를 드래그해 선택할 때의 색 */
+::selection { background: var(--violet); color: #fff; }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; overflow: hidden;

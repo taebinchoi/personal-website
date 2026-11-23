@@ -92,7 +92,7 @@ const bilingual = enParas.length > 0;
     all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 18px;
     font: inherit; font-stretch: 110%; font-weight: 700; font-size: var(--fs-xl); line-height: 1.05; color: var(--fg);
   }
-  .ptitle:focus-visible { outline: 2px solid var(--fg); outline-offset: 6px; }
+  .ptitle:focus-visible { outline: 2px solid var(--focus); outline-offset: 6px; }
   .lb {
     background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
     background-position: 0 100%; background-size: 0% 2px; transition: background-size .4s var(--ease);
@@ -133,13 +133,13 @@ const bilingual = enParas.length > 0;
   .links a { color: var(--fg); }
   .copy-link { all: unset; cursor: pointer; color: var(--fg-3); font-size: var(--fs-s); padding: 6px 0; }
   .copy-link:hover { color: var(--fg); }
-  .copy-link:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .copy-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
   .cl-done:not(:empty) { margin-left: 10px; color: var(--fg); }
 
   /* 언어 토글 */
   .lang-switch { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); color: var(--fg-4); }
   .lang-switch button { all: unset; cursor: pointer; padding: 6px 0; min-height: 32px; display: inline-flex; align-items: center; }
-  .lang-switch button:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .lang-switch button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
   .lang-switch button:hover { color: var(--fg-2); }
   .lang-switch button[aria-pressed='true'] { color: var(--fg); font-weight: 700; }
   .detail[data-lang='ko'] .when-en, .detail[data-lang='en'] .when-ko { display: none; }
@@ -204,6 +204,19 @@ const bilingual = enParas.length > 0;
   };
   openFromHash();
   addEventListener('hashchange', openFromHash);
+
+  // Esc: 지금 보고 있는(또는 마지막으로 연) 작업을 닫고 제목으로 돌아가요
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const inside = (document.activeElement as HTMLElement | null)?.closest('article');
+    const btn = inside?.querySelector<HTMLButtonElement>('.ptitle[aria-expanded="true"]')
+      ?? [...document.querySelectorAll<HTMLButtonElement>('.ptitle[aria-expanded="true"]')].pop();
+    if (!btn) return;
+    btn.click();
+    btn.focus({ preventScroll: true });
+    const top = btn.getBoundingClientRect().top;
+    if (top < 0 || top > innerHeight) btn.closest('article')!.scrollIntoView({ block: 'start' });
+  });
 
   // 링크 복사
   document.querySelectorAll<HTMLButtonElement>('.copy-link').forEach((b) => {

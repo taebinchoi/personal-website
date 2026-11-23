@@ -12,6 +12,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const marquee = [...projects.map((p) => p.data.title), 'HCI Notes'];
 const nameChars = [...site.name];
+// 사이트를 마지막으로 올린 날짜 (빌드할 때 자동으로 찍혀요)
+const updated = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' })
+  .format(new Date()).replaceAll('-', '.');
 ---
 <!doctype html>
 <html lang="ko">
@@ -83,7 +86,7 @@ const nameChars = [...site.name];
           </div>
         </div>
         <footer class="foot">
-          <span>© {site.year} {site.name}</span>
+          <span class="foot-meta"><span>© {site.year} {site.name}</span><span class="updated">Updated {updated}</span></span>
           <span class="foot-links">
             <a class="ul" href={site.links.instagram}>Instagram</a>
             <a class="ul" href={site.links.github}>GitHub</a>
@@ -235,4 +238,6 @@ const nameChars = [...site.name];
     font-size: var(--fs-s); color: var(--fg-3);
   }
   .foot-links { display: flex; gap: 20px; }
+  .foot-meta { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
+  .updated { font-size: clamp(11px, .8vw, 12px); color: var(--fg-4); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
 </style>
