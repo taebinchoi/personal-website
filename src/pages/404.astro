@@ -1,17 +1,71 @@
 ---
 import Base from '../layouts/Base.astro';
-import Alternate from '../components/Alternate.astro';
+
+// 전광판처럼 글자가 넘어가다 맞춰지는 문구
+const words = ['PAGE', 'NOT', 'FOUND'];
 ---
 <Base title="404">
   <section class="page">
     <h1 class="page-title">404</h1>
-    <p class="page-intro rise"><span style="animation-delay:.45s">
-      <Alternate ko="찾는 페이지가 없어요." en="This page doesn't exist." />
-    </span></p>
+    <p class="board" aria-label="Page not found">
+      {words.map((w) => (
+        <span class="word" aria-hidden="true">
+          {w.split('').map((ch) => <span class="flap" data-ch={ch}>{ch}</span>)}
+        </span>
+      ))}
+    </p>
     <p class="page-body back"><a class="ul" href="/">Portfolio</a></p>
   </section>
 </Base>
 
+<script>
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const flaps = [...document.querySelectorAll<HTMLElement>('.board .flap')];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const run = () => {
+    flaps.forEach((f, i) => {
+      const target = f.dataset.ch!;
+      let n = 6 + i * 2; // 왼쪽부터 차례로 맞춰짐
+      const step = () => {
+        f.textContent = n > 0 ? A[(Math.random() * A.length) | 0] : target;
+        f.classList.remove('turn'); void f.offsetWidth; f.classList.add('turn');
+        if (n-- > 0) setTimeout(step, 55);
+      };
+      setTimeout(step, 250);
+    });
+  };
+  if (!still) run();
+
+  // 마우스가 있으면 올릴 때 한 번 더
+  const board = document.querySelector('.board')!;
+  let busy = 0;
+  board.addEventListener('pointerenter', (e) => {
+    if ((e as PointerEvent).pointerType !== 'mouse' || still || Date.now() < busy) return;
+    busy = Date.now() + 1800;
+    run();
+  });
+</script>
+
 <style>
+  .board {
+    margin: clamp(24px, 3vw, 36px) 0 0;
+    display: flex; flex-wrap: wrap; gap: 10px clamp(14px, 2vw, 28px);
+  }
+  .word { display: inline-flex; gap: 3px; }
+  .flap {
+    position: relative; display: grid; place-items: center;
+    width: clamp(20px, 3.2vw, 48px); height: clamp(30px, 4.6vw, 68px);
+    background: var(--surface); border-radius: 3px;
+    font-size: clamp(16px, 2.8vw, 42px); font-weight: 700; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  /* 가운데 접히는 선 */
+  .flap::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+    background: var(--bg); opacity: .9;
+  }
+  .flap.turn { animation: turn .11s ease-out; }
+  @keyframes turn { from { transform: scaleY(.55); opacity: .5; } to { transform: none; opacity: 1; } }
   .back { font-size: var(--fs-xl); line-height: 1.1; }
 </style>
