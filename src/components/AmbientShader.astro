@@ -2,10 +2,10 @@
 // Contact 페이지 배경: 버건디·보라·남색이 아주 천천히 일렁이는 가벼운 WebGL 셰이더.
 // 화면 오른쪽 아래에서 번지고 왼쪽 위로 갈수록 어둠에 녹아들어 글자를 가리지 않아요.
 // WebGL이 안 되거나 '동작 줄이기' 설정이면 멈춘 그라디언트로 대신 보여요.
-interface Props { origin?: 'bottom-right' | 'top-right'; }
-const { origin = 'bottom-right' } = Astro.props;
+interface Props { origin?: 'bottom-right' | 'top-right'; ripple?: boolean; }
+const { origin = 'bottom-right', ripple = false } = Astro.props;
 ---
-<div class="ambient" aria-hidden="true" data-origin={origin}>
+<div class="ambient" aria-hidden="true" data-origin={origin} data-ripple={ripple ? "" : undefined}>
   <canvas></canvas>
 </div>
 
@@ -35,7 +35,7 @@ const { origin = 'bottom-right' } = Astro.props;
   if (gl) {
     const vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
     const fs = `precision mediump float;
-uniform vec2 r;uniform float t;uniform vec2 o;
+uniform vec2 r;uniform float t;uniform vec2 o;uniform vec3 k;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
@@ -43,6 +43,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.02;a*=.5;}
 void main(){
   vec2 uv=gl_FragCoord.xy/r;vec2 q=uv*vec2(r.x/r.y,1.)*1.6;
   float s=t*.05;
+  float age=t-k.z;float ring=0.;
+  if(age>0.&&age<3.2){vec2 d=(uv-k.xy)*vec2(r.x/r.y,1.);float L=length(d);
+    ring=exp(-pow((L-age*.42)*6.,2.))*pow(1.-age/3.2,1.6);
+    q+=d/(L+.001)*ring*.12;}
   vec2 w=vec2(fbm(q+vec2(s,-s*.7)),fbm(q+vec2(-s*.6,s)+3.1));
   float f=fbm(q+1.8*w+s*.5);
   vec3 bg=vec3(.063,.063,.067);
@@ -50,7 +54,8 @@ void main(){
   vec3 c=mix(nav,vio,smoothstep(.25,.75,f));c=mix(c,bur,smoothstep(.55,.95,w.x));
   float m=smoothstep(1.15,.05,distance(uv,o));
   m*=.55+.45*f;
-  vec3 col=mix(bg,c,m*.55);
+  m=max(m,ring*(.6+.4*f));
+  vec3 col=mix(bg,c,m*.55)+c*ring*.22;
   gl_FragColor=vec4(col,1.);
 }`;
     const sh = (type: number, src: string) => { const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
@@ -82,6 +87,16 @@ void main(){
       addEventListener('resize', resize);
 
       const t0 = performance.now();
+      const uK = gl.getUniformLocation(pr, 'k');
+      gl.uniform3f(uK, 0, 0, -100);
+
+      // 숨은 반응: 빈 곳을 누르면 그 자리에서 물결이 한 번 퍼져요 (링크나 버튼은 제외)
+      if (canvas.parentElement!.hasAttribute('data-ripple') && !reduce) {
+        addEventListener('pointerdown', (e) => {
+          if ((e.target as Element).closest('a, button, input, textarea, select, label')) return;
+          gl.uniform3f(uK, e.clientX / innerWidth, 1 - e.clientY / innerHeight, (performance.now() - t0) / 1000);
+        });
+      }
       let last = 0, raf = 0;
       const draw = (now: number) => {
         raf = requestAnimationFrame(draw);
