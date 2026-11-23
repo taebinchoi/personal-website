@@ -7,7 +7,7 @@ export const site = {
   // 검색엔진 소유 확인 코드. 구글 Search Console / 네이버 서치어드바이저에서 받은 content 값만 넣으세요.
   verify: {
     google: '',
-    naver: '',
+    naver: '62d3fcf7830d2ded4c49f5a613155b78b2315296',
   },
   links: {
     email: 'mailto:hyperreal721@naver.com',
