@@ -89,6 +89,31 @@ a:hover { color: #fff; }
 }
 @keyframes wipein { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 -10% 0); } }
 
+/* 스크롤하면 큰 제목이 폭과 크기를 줄이며 화면 위쪽에 작은 이름표로 붙어 있어요 (넓은 화면만) */
+.veil { display: none; }
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 900px) {
+    .page-title {
+      position: sticky; top: 18px; z-index: 20;
+      width: fit-content; transform-origin: 0 0;
+      animation: wipein .8s var(--ease-io) .25s both, shrink linear both;
+      animation-timeline: auto, scroll(root);
+      animation-range: normal, 0 clamp(160px, 18vw, 260px);
+    }
+    @keyframes shrink { to { transform: scale(.3); font-stretch: 80%; } }
+    /* 붙은 제목 뒤로 내용이 지나갈 때 겹쳐 보이지 않게 위쪽을 살짝 덮는 띠 */
+    .veil {
+      display: block; position: fixed; top: 0; left: 0; right: var(--rail); height: 76px; z-index: 19;
+      pointer-events: none; opacity: 0;
+      background: rgba(16, 16, 17, .72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      mask-image: linear-gradient(#000 62%, transparent); -webkit-mask-image: linear-gradient(#000 62%, transparent);
+      animation: veil linear var(--zero, 0s) both; animation-timeline: scroll(root);
+      animation-range: clamp(80px, 9vw, 130px) clamp(160px, 18vw, 260px);
+    }
+    @keyframes veil { to { opacity: 1; } }
+  }
+}
+
 /* 줄 단위로 올라오기 */
 .rise { display: block; overflow: hidden; }
 .rise > span { display: block; animation: rise .8s var(--ease) both; }
