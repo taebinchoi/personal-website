@@ -42,3 +42,8 @@ ffmpeg -i 작업-1080.mp4 -an -vf scale=1280:-2 -c:v libx264 -b:v 1400k -movflag
 GitHub 저장소에 올린 뒤 Cloudflare Pages에서 연결하고
 빌드 명령 `npm run build`, 출력 폴더 `dist`로 설정하면 돼요.
 도메인: taebinchoi.com (Cloudflare Registrar)
+
+## Notes 주제와 노트
+
+- 큰 주제 5개는 `src/content/topics/` 에 있어요. 제목(`title`, `titleEn`)과 설명(본문은 한국어, `en`은 영어)을 고치면 돼요. 새 주제는 `_template.md` 를 복사해서 만들어요.
+- 노트 한 편은 `src/content/notes/` 에 `_template.md` 를 복사해서 만들고, `topic:` 에 들어갈 주제의 파일 이름을 적어요. 그 주제를 펼치면 목록에 나와요.

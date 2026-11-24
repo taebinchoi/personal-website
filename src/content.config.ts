@@ -2,10 +2,8 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-const projects = defineCollection({
-  // 파일 이름이 _ 로 시작하면 사이트에 나오지 않아요 (초안, 템플릿용).
-  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/projects' }),
-  schema: ({ image }) =>
+// 작업(Portfolio)과 주제(Notes)가 같은 모양으로 펼쳐지도록 항목을 함께 써요.
+const itemFields = ({ image }: { image: () => any }) =>
     z.object({
       title: z.string(),
       order: z.number(), // 작은 숫자가 위에 나와요
@@ -37,6 +35,21 @@ const projects = defineCollection({
       // wide: true 이면 한 줄 전체를 차지해요
       gallery: z.array(z.object({ src: image(), alt: z.string(), wide: z.boolean().default(false) })).default([]),
       links: z.array(z.object({ label: z.string(), href: z.string() })).default([]),
+    });
+
+const projects = defineCollection({
+  // 파일 이름이 _ 로 시작하면 사이트에 나오지 않아요 (초안, 템플릿용).
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/projects' }),
+  schema: itemFields,
+});
+
+// Notes의 큰 주제. 제목은 한국어/영어가 번갈아 나오고, 누르면 Portfolio와 같은 모양으로 펼쳐져요.
+const topics = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/topics' }),
+  schema: (ctx) =>
+    itemFields(ctx).extend({
+      titleEn: z.string(), // 영어 제목
+      keywords: z.string().optional(),
     }),
 });
 
@@ -46,7 +59,9 @@ const notes = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     summary: z.string().optional(),
+    // 이 노트가 들어갈 주제 (src/content/topics 의 파일 이름, 예: hci-foundations)
+    topic: z.string().optional(),
   }),
 });
 
-export const collections = { projects, notes };
+export const collections = { projects, topics, notes };

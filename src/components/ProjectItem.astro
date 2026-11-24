@@ -2,23 +2,26 @@
 import { Image } from 'astro:assets';
 import { render, type CollectionEntry } from 'astro:content';
 import AutoVideo from './AutoVideo.astro';
+import Alternate from './Alternate.astro';
 
-interface Props { project: CollectionEntry<'projects'>; }
-const { project } = Astro.props;
-const d = project.data;
+// Portfolio의 작업과 Notes의 주제가 같이 써요. base: 링크 복사 때 쓸 페이지 주소
+interface Props { project: CollectionEntry<'projects'> | CollectionEntry<'topics'>; base?: string; count?: number; }
+const { project, base = '/', count = 0 } = Astro.props;
+const d = project.data as CollectionEntry<'topics'>['data'];
 const { Content } = await render(project);
 const id = `detail-${project.id}`;
 const facts = [
   ['Year', d.year], ['Tools', d.tools], ['Type', d.type], ['Role', d.role],
+  ['Keywords', d.keywords], ['Notes', count > 0 ? String(count) : ''],
 ].filter(([, v]) => v);
 const enParas = d.en ? d.en.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) : [];
 const bilingual = enParas.length > 0;
 ---
-<article class="project" id={project.id}>
+<article class={d.titleEn ? "project alt-title" : "project"} id={project.id}>
   <div class="head">
     <h2>
       <button class="ptitle" type="button" aria-expanded="false" aria-controls={id}>
-        <span class="lb">{d.title}</span>
+        <span class="lb">{d.titleEn ? <Alternate ko={d.title} en={d.titleEn} /> : d.title}</span>
         <svg class="plus" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 2v18M2 11h18" stroke="currentColor" stroke-width="2" /></svg>
       </button>
     </h2>
@@ -61,9 +64,10 @@ const bilingual = enParas.length > 0;
             </p>
           )}
           {d.credits && <p class="credits">{d.credits}</p>}
+          <slot />
           <p class="links">
             {d.links.map((l) => <a class="ul" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
-            <button type="button" class="copy-link ul" data-id={project.id}><span class="cl-label">Copy link</span><span class="cl-done" aria-live="polite"></span></button>
+            <button type="button" class="copy-link ul" data-id={project.id} data-base={base}><span class="cl-label">Copy link</span><span class="cl-done" aria-live="polite"></span></button>
           </p>
         </div>
         {d.stack.length > 0 && (
@@ -100,6 +104,17 @@ const bilingual = enParas.length > 0;
   .ptitle:hover .lb { background-size: 100% 2px; }
   .plus { flex: none; width: clamp(16px, 1.6vw, 22px); height: auto; transition: transform .4s var(--ease); }
   .ptitle[aria-expanded='true'] .plus { transform: rotate(45deg); }
+  /* 한국어/영어가 번갈아 바뀌는 제목: 길이가 바뀌어도 + 가 흔들리지 않게 오른쪽 끝, 첫 줄 높이에 둬요 */
+  .alt-title h2 { flex: 1 1 100%; }
+  .alt-title .ptitle { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; }
+  .alt-title .plus { margin-top: .32em; }
+  .alt-title .lb { background: none; }
+  .alt-title .lb :global(.item) {
+    justify-self: start;
+    background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
+    background-position: 0 100%; background-size: 0% 2px; transition: background-size .4s var(--ease);
+  }
+  .alt-title .ptitle:hover .lb :global(.item) { background-size: 100% 2px; }
   .meta { display: flex; gap: 20px; font-size: var(--fs-s); color: var(--fg-3); }
   .cover { width: 100%; height: auto; }
 
@@ -221,7 +236,7 @@ const bilingual = enParas.length > 0;
   // 링크 복사
   document.querySelectorAll<HTMLButtonElement>('.copy-link').forEach((b) => {
     b.addEventListener('click', async () => {
-      const url = location.origin + '/#' + b.dataset.id;
+      const url = location.origin + (b.dataset.base || '/') + '#' + b.dataset.id;
       const done = b.querySelector('.cl-done')!;
       try { await navigator.clipboard.writeText(url); done.textContent = 'Copied'; }
       catch { done.textContent = url; }

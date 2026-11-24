@@ -2,8 +2,13 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import Alternate from '../../components/Alternate.astro';
+import ProjectItem from '../../components/ProjectItem.astro';
 
 const notes = (await getCollection('notes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const topics = (await getCollection('topics')).sort((a, b) => a.data.order - b.data.order);
+const ids = new Set(topics.map((t) => t.id));
+const inTopic = (id: string) => notes.filter((n) => n.data.topic === id);
+const loose = notes.filter((n) => !n.data.topic || !ids.has(n.data.topic)); // 주제가 없는 노트
 const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 ---
 <Base title="Notes">
@@ -15,9 +20,28 @@ const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart
         en="This is a place for organizing various academic content <br>and research records, including Human-Computer Interaction (HCI)."
       />
     </span></p>
-    {notes.length > 0 && (
-      <ul class="page-body">
-        {notes.map((n) => (
+    <div class="page-body topics">
+      {topics.map((t) => {
+        const list = inTopic(t.id);
+        return (
+          <ProjectItem project={t} base="/notes" count={list.length}>
+            {list.length > 0 && (
+              <ul class="in-topic">
+                {list.map((n) => (
+                  <li>
+                    <a class="ul" href={`/notes/${n.id}`}>{n.data.title}</a>
+                    <time datetime={n.data.date.toISOString()}>{fmt(n.data.date)}</time>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </ProjectItem>
+        );
+      })}
+    </div>
+    {loose.length > 0 && (
+      <ul class="loose">
+        {loose.map((n) => (
           <li>
             <a href={`/notes/${n.id}`}>
               <span class="t">{n.data.title}</span>
@@ -32,8 +56,13 @@ const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart
 </Base>
 
 <style>
-  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
-  li a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: baseline; text-decoration: none; }
+  .topics { display: flex; flex-direction: column; gap: clamp(40px, 5vw, 64px); }
+  /* 주제 안의 노트 목록 */
+  .in-topic { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .in-topic li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; align-items: baseline; }
+  .in-topic a { color: var(--fg); }
+  .loose { list-style: none; margin: clamp(80px, 11vw, 120px) 0 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
+  .loose li a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: baseline; text-decoration: none; }
   .t { font-weight: 700; font-size: var(--fs-xl); line-height: 1.1; color: var(--fg); }
   @supports (animation-timeline: view()) {
     .t {
@@ -43,6 +72,6 @@ const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart
   }
   @keyframes fill { from { color: transparent; } to { color: var(--fg); } }
   time { font-size: var(--fs-s); color: var(--fg-3); font-variant-numeric: tabular-nums; }
-  li p { margin-top: 10px; color: var(--fg-2); max-width: 640px; }
-  @media (max-width: 599px) { li a { grid-template-columns: 1fr; } }
+  .loose li p { margin-top: 10px; color: var(--fg-2); max-width: 640px; }
+  @media (max-width: 599px) { .loose li a { grid-template-columns: 1fr; } }
 </style>
