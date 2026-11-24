@@ -28,6 +28,10 @@ const languages = {
 };
 ---
 <Base title="Profile">
+  <script is:inline>
+    // 예전에 공유된 작업 링크(taebinchoi.com/#book4film)는 Portfolio의 그 작업으로 보내요
+    if (location.hash.length > 1 && !document.getElementById(decodeURIComponent(location.hash.slice(1)))) location.replace('/portfolio' + location.hash);
+  </script>
   <AmbientShader origin="top-right" />
   <section class="page">
     <h1 class="page-title">Profile</h1>

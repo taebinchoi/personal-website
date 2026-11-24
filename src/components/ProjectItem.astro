@@ -2,11 +2,10 @@
 import { Image } from 'astro:assets';
 import { render, type CollectionEntry } from 'astro:content';
 import AutoVideo from './AutoVideo.astro';
-import Alternate from './Alternate.astro';
 
 // Portfolio의 작업과 Notes의 주제가 같이 써요. base: 링크 복사 때 쓸 페이지 주소
 interface Props { project: CollectionEntry<'projects'> | CollectionEntry<'topics'>; base?: string; count?: number; }
-const { project, base = '/', count = 0 } = Astro.props;
+const { project, base = '/portfolio', count = 0 } = Astro.props;
 const d = project.data as CollectionEntry<'topics'>['data'];
 const { Content } = await render(project);
 const id = `detail-${project.id}`;
@@ -17,11 +16,11 @@ const facts = [
 const enParas = d.en ? d.en.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) : [];
 const bilingual = enParas.length > 0;
 ---
-<article class={d.titleEn ? "project alt-title" : "project"} id={project.id}>
+<article class="project" id={project.id}>
   <div class="head">
     <h2>
       <button class="ptitle" type="button" aria-expanded="false" aria-controls={id}>
-        <span class="lb">{d.titleEn ? <Alternate ko={d.title} en={d.titleEn} /> : d.title}</span>
+        <span class="lb">{d.titleEn ? (<><span class="ko" lang="ko">{d.title}</span><span class="en" lang="en">{d.titleEn}</span></>) : d.title}</span>
         <svg class="plus" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 2v18M2 11h18" stroke="currentColor" stroke-width="2" /></svg>
       </button>
     </h2>
@@ -104,17 +103,6 @@ const bilingual = enParas.length > 0;
   .ptitle:hover .lb { background-size: 100% 2px; }
   .plus { flex: none; width: clamp(16px, 1.6vw, 22px); height: auto; transition: transform .4s var(--ease); }
   .ptitle[aria-expanded='true'] .plus { transform: rotate(45deg); }
-  /* 한국어/영어가 번갈아 바뀌는 제목: 길이가 바뀌어도 + 가 흔들리지 않게 오른쪽 끝, 첫 줄 높이에 둬요 */
-  .alt-title h2 { flex: 1 1 100%; }
-  .alt-title .ptitle { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; }
-  .alt-title .plus { margin-top: .32em; }
-  .alt-title .lb { background: none; }
-  .alt-title .lb :global(.item) {
-    justify-self: start;
-    background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
-    background-position: 0 100%; background-size: 0% 2px; transition: background-size .4s var(--ease);
-  }
-  .alt-title .ptitle:hover .lb :global(.item) { background-size: 100% 2px; }
   .meta { display: flex; gap: 20px; font-size: var(--fs-s); color: var(--fg-3); }
   .cover { width: 100%; height: auto; }
 
@@ -157,10 +145,8 @@ const bilingual = enParas.length > 0;
   .lang-switch button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
   .lang-switch button:hover { color: var(--fg-2); }
   .lang-switch button[aria-pressed='true'] { color: var(--fg); font-weight: 700; }
-  .detail[data-lang='ko'] .when-en, .detail[data-lang='en'] .when-ko { display: none; }
-  .detail[data-lang='ko'] .en, .detail[data-lang='en'] .ko { display: none; }
-  .detail[data-lang='en'] .text.en { animation: fadein .35s var(--ease); }
-  .detail[data-lang='ko'] .text.ko { animation: fadein .35s var(--ease); }
+  /* 어떤 언어를 보여 줄지는 global.css 의 html[data-lang] 규칙이 정해요 */
+  .text { animation: fadein .35s var(--ease); }
   @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
   .gallery {
@@ -236,7 +222,7 @@ const bilingual = enParas.length > 0;
   // 링크 복사
   document.querySelectorAll<HTMLButtonElement>('.copy-link').forEach((b) => {
     b.addEventListener('click', async () => {
-      const url = location.origin + (b.dataset.base || '/') + '#' + b.dataset.id;
+      const url = location.origin + (b.dataset.base || '/portfolio') + '#' + b.dataset.id;
       const done = b.querySelector('.cl-done')!;
       try { await navigator.clipboard.writeText(url); done.textContent = 'Copied'; }
       catch { done.textContent = url; }
@@ -244,14 +230,12 @@ const bilingual = enParas.length > 0;
     });
   });
 
-  // 언어 토글: 기본은 적힌 그대로(한국어). 사용자가 직접 바꾼 경우에만 모든 작업에 같이 적용하고 기억해요.
+  // 언어 토글: 기본은 적힌 그대로(한국어). 사용자가 직접 바꾼 경우에만 페이지 전체(제목, 설명)에 같이 적용하고 기억해요.
   const KEY = 'lang';
   const applyLang = (lang: string) => {
-    document.querySelectorAll<HTMLElement>('.lang-switch').forEach((sw) => {
-      const detail = sw.closest<HTMLElement>('.detail')!;
-      detail.dataset.lang = lang;
-      sw.querySelectorAll<HTMLButtonElement>('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.set === lang)));
-    });
+    if (lang === 'en') document.documentElement.dataset.lang = 'en';
+    else delete document.documentElement.dataset.lang;
+    document.querySelectorAll<HTMLButtonElement>('.lang-switch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.set === lang)));
   };
   let saved: string | null = null;
   try { saved = localStorage.getItem(KEY); } catch {}

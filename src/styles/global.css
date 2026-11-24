@@ -60,6 +60,9 @@ img, video { display: block; max-width: 100%; height: auto; }
 a { color: var(--fg); }
 a:hover { color: #fff; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; }
+/* 한국어 / 영어 토글: 기본은 한국어, 사용자가 English를 고르면 html 에 data-lang="en" 이 붙어요 */
+html:not([data-lang='en']) .en:not(.item), html[data-lang='en'] .ko:not(.item),
+html:not([data-lang='en']) .when-en, html[data-lang='en'] .when-ko { display: none; }
 /* 글자를 드래그해 선택할 때의 색 */
 ::selection { background: var(--violet); color: #fff; }
 

@@ -42,6 +42,7 @@ const updated = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year:
   {site.verify.google && <meta name="google-site-verification" content={site.verify.google} />}
   {site.verify.naver && <meta name="naver-site-verification" content={site.verify.naver} />}
   <script is:inline>
+    try { if (localStorage.getItem('lang') === 'en') document.documentElement.dataset.lang = 'en'; } catch (e) {}
     try {
       if (sessionStorage.getItem('wipe') === '1') {
         sessionStorage.removeItem('wipe');
@@ -60,7 +61,7 @@ const updated = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year:
 
   <div class="shell">
     <header class="side">
-      <a href="/" class="name" aria-label={site.name}>
+      <a href="/profile" class="name" aria-label={site.name}>
         {nameChars.map((ch) => (ch === ' ' ? <span class="gap" aria-hidden="true"></span> : <span aria-hidden="true">{ch}</span>))}
       </a>
       <nav aria-label="주요 메뉴">

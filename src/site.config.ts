@@ -20,7 +20,7 @@ export const site = {
 
 export const nav = [
   { href: '/profile', label: 'Profile' },
-  { href: '/', label: 'Portfolio' },
+  { href: '/portfolio', label: 'Portfolio' },
   { href: '/notes', label: 'Notes' },
   { href: '/contact', label: 'Contact' },
 ];

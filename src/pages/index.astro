@@ -1,97 +1,16 @@
 ---
-import Base from '../layouts/Base.astro';
-import ProjectItem from '../components/ProjectItem.astro';
-import Alternate from '../components/Alternate.astro';
-import { getCollection } from 'astro:content';
-
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-// 첫 작업의 정지 이미지를 가장 먼저 받아서 첫 화면이 빨리 뜨게
-const firstPoster = projects[0]?.data.video?.poster;
+// 첫 화면(taebinchoi.com)은 Profile로 이동해요.
+// Cloudflare에서는 public/_redirects 가 먼저 처리하고, 이 페이지는 그게 안 될 때를 위한 예비예요.
 ---
-<Base>
-  {firstPoster && <link slot="head" rel="preload" as="image" href={firstPoster} fetchpriority="high" />}
-  <script is:inline>
-    try { if (localStorage.getItem('view') === 'index') document.documentElement.dataset.view = 'index'; } catch (e) {}
-  </script>
-  <section class="page">
-    <h1 class="page-title">Portfolio</h1>
-    <div class="intro-row">
-      <p class="page-intro rise"><span style="animation-delay:.45s">
-        <Alternate
-          ko="기록 영상과 이미지로 정리한 작업들입니다."
-          en="These are works organized into <br>archival videos and images, etc."
-        />
-      </span></p>
-      <div class="view-switch" role="group" aria-label="View">
-        <button type="button" data-view="full" aria-pressed="true">Full</button>
-        <span aria-hidden="true">/</span>
-        <button type="button" data-view="index" aria-pressed="false">Index</button>
-      </div>
-    </div>
-
-    <ol class="page-body index">
-      {projects.map((p, i) => (
-        <li>
-          <a href={`#${p.id}`} data-open={p.id}>
-            <span class="no">{String(i + 1).padStart(2, '0')}</span>
-            <span class="ttl">{p.data.title}</span>
-            <span class="type">{p.data.type}</span>
-            <span class="yr">{p.data.year}</span>
-          </a>
-        </li>
-      ))}
-    </ol>
-
-    <div class="page-body list">
-      {projects.map((p) => <ProjectItem project={p} />)}
-    </div>
-  </section>
-</Base>
-
-<style>
-  .intro-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 16px 32px; }
-  .view-switch { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); color: var(--fg-4); }
-  .view-switch button { all: unset; cursor: pointer; padding: 8px 0; min-height: 32px; display: inline-flex; align-items: center; }
-  .view-switch button:hover { color: var(--fg-2); }
-  .view-switch button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-  .view-switch button[aria-pressed='true'] { color: var(--fg); font-weight: 700; }
-
-  .list { display: flex; flex-direction: column; gap: clamp(80px, 11vw, 120px); }
-
-  /* Index 보기: 제목·분야·연도만 한눈에 */
-  .index { display: none; list-style: none; padding: 0; }
-  :global(html[data-view='index']) .index { display: block; }
-  :global(html[data-view='index']) .list { display: none; }
-  .index a {
-    display: grid; align-items: baseline; gap: 4px 24px; text-decoration: none;
-    grid-template-columns: 2.2em minmax(0, 1fr) auto;
-    grid-template-areas: 'no ttl yr' '. type type';
-    padding: 18px 0; border-top: 1px solid #262628;
-  }
-  .index li:last-child a { border-bottom: 1px solid #262628; }
-  .no { grid-area: no; font-size: var(--fs-s); color: var(--fg-4); font-variant-numeric: tabular-nums; }
-  .ttl { grid-area: ttl; font-weight: 700; font-size: clamp(26px, 4vw, 56px); line-height: 1.05; overflow-wrap: normal; word-break: keep-all; transition: font-stretch .45s var(--ease); }
-  .type { grid-area: type; color: var(--fg-3); font-size: var(--fs-s); }
-  .yr { grid-area: yr; color: var(--fg-3); font-size: var(--fs-s); font-variant-numeric: tabular-nums; }
-  @media (min-width: 760px) {
-    .index a { grid-template-columns: 3em minmax(0, 1fr) minmax(0, .8fr) 6em; grid-template-areas: 'no ttl type yr'; }
-    .yr { text-align: right; }
-  }
-  @media (hover: hover) { .index a:hover .ttl { font-stretch: 125%; } }
-</style>
-
-<script>
-  const root = document.documentElement;
-  const btns = document.querySelectorAll<HTMLButtonElement>('.view-switch button');
-  const setView = (v: string) => {
-    if (v === 'index') root.dataset.view = 'index'; else delete root.dataset.view;
-    btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
-    try { localStorage.setItem('view', v); } catch {}
-  };
-  setView(root.dataset.view === 'index' ? 'index' : 'full');
-  btns.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view!)));
-  // Index에서 작업을 누르면 Full 보기로 돌아가 그 작업을 펼쳐요
-  document.querySelectorAll<HTMLAnchorElement>('.index a').forEach((a) => {
-    a.addEventListener('click', () => setView('full'));
-  });
-</script>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://taebinchoi.com/profile" />
+  <script is:inline>location.replace('/profile' + location.hash);</script>
+  <noscript><meta http-equiv="refresh" content="0;url=/profile" /></noscript>
+  <title>Taebin Choi</title>
+</head>
+<body><a href="/profile">Profile</a></body>
+</html>
