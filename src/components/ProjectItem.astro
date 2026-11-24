@@ -4,8 +4,9 @@ import { render, type CollectionEntry } from 'astro:content';
 import AutoVideo from './AutoVideo.astro';
 
 // Portfolio의 작업과 Notes의 주제가 같이 써요. base: 링크 복사 때 쓸 페이지 주소
-interface Props { project: CollectionEntry<'projects'> | CollectionEntry<'topics'>; base?: string; count?: number; }
-const { project, base = '/portfolio', count = 0 } = Astro.props;
+// langSwitch: false 이면 이 항목 안의 한국어/영어 토글을 숨겨요 (Notes처럼 페이지 위에서 한꺼번에 바꿀 때)
+interface Props { project: CollectionEntry<'projects'> | CollectionEntry<'topics'>; base?: string; count?: number; langSwitch?: boolean; }
+const { project, base = '/portfolio', count = 0, langSwitch = true } = Astro.props;
 const d = project.data as CollectionEntry<'topics'>['data'];
 const { Content } = await render(project);
 const id = `detail-${project.id}`;
@@ -45,7 +46,7 @@ const bilingual = enParas.length > 0;
         </div>
 
         <div class="body">
-          {bilingual && (
+          {bilingual && langSwitch && (
             <div class="lang-switch" role="group" aria-label="Language">
               <button type="button" data-set="ko" aria-pressed="true"><span class="when-ko">한국어</span><span class="when-en">Korean</span></button>
               <span class="slash" aria-hidden="true">/</span>
@@ -90,7 +91,7 @@ const bilingual = enParas.length > 0;
 
 <style>
   .project { display: flex; flex-direction: column; gap: 20px; }
-  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px; }
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; }
   .ptitle {
     all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 18px;
     font: inherit; font-stretch: 110%; font-weight: 700; font-size: var(--fs-xl); line-height: 1.05; color: var(--fg);
@@ -117,7 +118,8 @@ const bilingual = enParas.length > 0;
   @media (min-width: 900px) { .detail { grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); } }
 
   .side-info { display: flex; flex-direction: column; gap: 28px; }
-  .facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 24px; align-content: start; }
+  /* 정보 목록의 첫 줄이 오른쪽 설명(또는 언어 토글) 첫 줄과 같은 높이에 오도록 줄 간격을 본문과 맞춰요 */
+  .facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 24px; align-content: start; line-height: 1.85; }
   dt { color: var(--fg-3); }
   .stack {
     grid-column: 1 / -1; display: grid; gap: 20px 48px;
@@ -140,8 +142,9 @@ const bilingual = enParas.length > 0;
   .cl-done:not(:empty) { margin-left: 10px; color: var(--fg); }
 
   /* 언어 토글 */
-  .lang-switch { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); color: var(--fg-4); }
-  .lang-switch button { all: unset; cursor: pointer; padding: 6px 0; min-height: 32px; display: inline-flex; align-items: center; }
+  .lang-switch { display: flex; align-items: baseline; gap: 8px; font-size: var(--fs-s); color: var(--fg-4); min-height: calc(var(--fs-m) * 1.85); line-height: calc(var(--fs-m) * 1.85); }
+  /* 누르는 영역은 넉넉하게, 자리는 한 줄만 차지하게 */
+  .lang-switch button { all: unset; cursor: pointer; padding: 6px 0; margin: -6px 0; }
   .lang-switch button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
   .lang-switch button:hover { color: var(--fg-2); }
   .lang-switch button[aria-pressed='true'] { color: var(--fg); font-weight: 700; }

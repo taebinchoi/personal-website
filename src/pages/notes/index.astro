@@ -31,7 +31,7 @@ const fmt = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart
       {topics.map((t) => {
         const list = inTopic(t.id);
         return (
-          <ProjectItem project={t} base="/notes" count={list.length}>
+          <ProjectItem project={t} base="/notes" count={list.length} langSwitch={false}>
             {list.length > 0 && (
               <ul class="in-topic">
                 {list.map((n) => (
