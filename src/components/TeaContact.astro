@@ -11,15 +11,15 @@ const { items } = Astro.props;
       <button type="button" class="open" aria-label={`Open ${t.label}`} aria-expanded="false">
         <span class="stage">
           <span class="cup" aria-hidden="true">
-            <img class="water" src="/media/tea/water.webp" alt="" width="640" height="573" decoding="async" />
-            <img class="brew" src={`/media/tea/${t.brew}.webp`} alt="" width="640" height="573" decoding="async" />
+            <img class="water" src="/media/tea/water-v2.webp" alt="" width="640" height="573" decoding="async" />
+            <img class="brew" src={`/media/tea/${t.brew}-v2.webp`} alt="" width="640" height="573" decoding="async" />
             <span class="steam s1"></span><span class="steam s2"></span><span class="steam s3"></span>
           </span>
           <span class="pack" aria-hidden="true">
-            <span class="strip"><img src="/media/tea/sachet.webp" alt="" width="358" height="600" decoding="async" /></span>
+            <span class="strip"><img src="/media/tea/sachet-v2.webp" alt="" width="358" height="600" decoding="async" /></span>
             <span class="body">
-              <img src="/media/tea/sachet.webp" alt="" width="358" height="600" decoding="async" />
-              <img class="band" src="/media/tea/sachet.webp" alt="" width="358" height="600" decoding="async" style={`filter: hue-rotate(${t.hue}) ${t.dark ?? ''}`} />
+              <img src="/media/tea/sachet-v2.webp" alt="" width="358" height="600" decoding="async" />
+              <img class="band" src="/media/tea/sachet-v2.webp" alt="" width="358" height="600" decoding="async" style={`filter: hue-rotate(${t.hue}) ${t.dark ?? ''}`} />
               <span class="name">{t.label}</span>
               <span class="flavor">{t.flavor}</span>
             </span>
