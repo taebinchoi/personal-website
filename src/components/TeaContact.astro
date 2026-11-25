@@ -16,10 +16,10 @@ const { items } = Astro.props;
             <span class="steam s1"></span><span class="steam s2"></span><span class="steam s3"></span>
           </span>
           <span class="pack" aria-hidden="true">
-            <span class="strip"><img src="/media/tea/sachet-v2.webp" alt="" width="358" height="600" decoding="async" /></span>
+            <span class="strip"><img src="/media/tea/sachet-v3.webp" alt="" width="309" height="600" decoding="async" /></span>
             <span class="body">
-              <img src="/media/tea/sachet-v2.webp" alt="" width="358" height="600" decoding="async" />
-              <img class="band" src="/media/tea/sachet-v2.webp" alt="" width="358" height="600" decoding="async" style={`filter: hue-rotate(${t.hue}) ${t.dark ?? ''}`} />
+              <img src="/media/tea/sachet-v3.webp" alt="" width="309" height="600" decoding="async" />
+              <img class="band" src="/media/tea/sachet-v3.webp" alt="" width="309" height="600" decoding="async" style={`filter: hue-rotate(${t.hue}) ${t.dark ?? ''}`} />
               <span class="name">{t.label}</span>
               <span class="flavor">{t.flavor}</span>
             </span>
@@ -149,14 +149,15 @@ const { items } = Astro.props;
   }
 
   /* 봉지 */
-  .tea .pack { position: absolute; top: 3%; bottom: 3%; left: 50%; aspect-ratio: 358 / 600; transform: translateX(-50%); container-type: inline-size; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+  .tea .pack { position: absolute; top: 3%; bottom: 3%; left: 50%; aspect-ratio: 309 / 600; transform: translateX(-50%); container-type: inline-size; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
   @media (hover: hover) { .tea .item:not(.on) .open:hover .pack { transform: translate(-50%, -3%); } }
   .tea .strip, .tea .body { position: absolute; inset: 0; }
   .tea .strip { clip-path: polygon(0% 0%, 100% 0%, 100.0% 7.95%, 92.9% 9.33%, 85.7% 8.07%, 78.6% 9.04%, 71.4% 7.93%, 64.3% 9.17%, 57.1% 7.91%, 50.0% 9.20%, 42.9% 7.92%, 35.7% 9.15%, 28.6% 8.11%, 21.4% 9.03%, 14.3% 8.16%, 7.1% 9.06%, 0.0% 8.03%); transform-origin: 3% 8.4%; }
   .tea .body { clip-path: polygon(0.0% 8.03%, 7.1% 9.06%, 14.3% 8.16%, 21.4% 9.03%, 28.6% 8.11%, 35.7% 9.15%, 42.9% 7.92%, 50.0% 9.20%, 57.1% 7.91%, 64.3% 9.17%, 71.4% 7.93%, 78.6% 9.04%, 85.7% 8.07%, 92.9% 9.33%, 100.0% 7.95%, 100% 100%, 0% 100%); transform-origin: 50% 100%; }
   .tea .body img { position: absolute; inset: 0; }
   .tea .band { clip-path: inset(66.4% 0 25.9% 0); }
-  .tea .name, .tea .flavor { position: absolute; left: 0; right: 0; text-align: center; color: #23201D; font-weight: 700; font-stretch: 110%; line-height: 1; }
+  /* 종이 오른쪽 가장자리가 그늘져 좁아 보여서, 눈에 보이는 종이 가운데에 맞춰 살짝 왼쪽으로 */
+  .tea .name, .tea .flavor { position: absolute; left: 0; right: 5%; text-align: center; color: #23201D; font-weight: 700; font-stretch: 110%; line-height: 1; }
   .tea .name { top: 37.5%; font-size: 13.5cqw; }
   .tea .flavor { top: 79.5%; font-size: 5.4cqw; letter-spacing: .12em; padding-left: .12em; color: #5E5850; }
   .tea .on .strip { animation: tea-tear .85s cubic-bezier(.4, 0, .6, 1) forwards; }
