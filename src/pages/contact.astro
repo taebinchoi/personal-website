@@ -2,119 +2,27 @@
 import Base from '../layouts/Base.astro';
 import { site } from '../site.config';
 import AmbientShader from '../components/AmbientShader.astro';
+import TeaContact from '../components/TeaContact.astro';
 
-// show: 옆에 보여 줄 주소
-const links = [
-  { label: 'Email', href: site.links.email, show: site.links.email.replace('mailto:', ''), copy: true },
-  { label: 'Instagram', href: site.links.instagram, show: '@' + site.links.instagram.split('/').filter(Boolean).pop() },
-  { label: 'GitHub', href: site.links.github, show: site.links.github.replace('https://', '') },
-  { label: 'CV', href: site.links.cv, show: 'PDF' },
-].filter((l) => l.href);
+// 티백 세 개: 차 이름과 색은 여기서 바꿔요
+const teas = [
+  { id: 'email', label: 'Email', flavor: 'HIBISCUS', tea: '#9A2E55', deep: '#5E1630', light: '#C25A80',
+    href: site.links.email, show: site.links.email.replace('mailto:', ''), copy: true },
+  { id: 'instagram', label: 'Instagram', flavor: 'LAVENDER', tea: '#6A3FB8', deep: '#3A1F72', light: '#9370D8',
+    href: site.links.instagram, show: '@' + site.links.instagram.split('/').filter(Boolean).pop() },
+  { id: 'github', label: 'GitHub', flavor: 'BLACKCURRANT', tea: '#5A1E48', deep: '#2A0C22', light: '#8A3A72',
+    href: site.links.github, show: site.links.github.replace('https://', '') },
+].filter((t) => t.href);
 ---
 <Base title="Contact">
   <AmbientShader ripple />
   <section class="page">
     <h1 class="page-title">Contact</h1>
-    <ul class="list">
-      {links.map((l) => (
-        <li>
-          <a href={l.href} data-copy={l.copy ? l.show : undefined} target={l.href.startsWith('http') ? '_blank' : undefined} rel={l.href.startsWith('http') ? 'noopener' : undefined}>
-            <span class="label">{l.label}</span>
-            <span class="addr" aria-hidden="true">{l.show}</span>
-            <span class="sr" aria-live="polite">{l.show}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
+    <TeaContact items={teas} />
+    {site.links.cv && <p class="cv"><a class="ul" href={site.links.cv}>CV</a></p>}
   </section>
 </Base>
 
-<script>
-  // 주소는 글자가 뒤섞였다가 왼쪽부터 제자리를 찾으며 나타나요.
-  const LOW = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  const UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const pick = (ch: string) => {
-    if (/[a-z0-9]/.test(ch)) return LOW[(Math.random() * LOW.length) | 0];
-    if (/[A-Z]/.test(ch)) return UP[(Math.random() * UP.length) | 0];
-    return ch; // @ . / 같은 기호는 그대로
-  };
-  const timers = new WeakMap<HTMLElement, number>();
-  const scramble = (el: HTMLElement, text: string) => {
-    cancelAnimationFrame(timers.get(el) ?? 0);
-    if (still) { el.textContent = text; return; }
-    const t0 = performance.now();
-    const dur = 260 + text.length * 22;
-    let last = 0;
-    const frame = (now: number) => {
-      const p = (now - t0) / dur;
-      if (p >= 1) { el.textContent = text; return; }
-      if (now - last > 40) { // 너무 빠르게 깜빡이지 않게
-        last = now;
-        const fixed = Math.floor(p * text.length);
-        el.textContent = text.slice(0, fixed) + [...text.slice(fixed)].map(pick).join('');
-      }
-      timers.set(el, requestAnimationFrame(frame));
-    };
-    timers.set(el, requestAnimationFrame(frame));
-  };
-
-  document.querySelectorAll<HTMLAnchorElement>('.list a').forEach((a) => {
-    const addr = a.querySelector<HTMLElement>('.addr')!;
-    const text = addr.textContent!;
-    const show = () => scramble(addr, addr.dataset.now ?? text);
-    a.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') show(); });
-    a.addEventListener('focus', show);
-    a.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !a.dataset.copy) show(); });
-
-    // Email은 누르면 주소가 복사돼요. 복사가 안 되는 환경에서는 원래대로 메일 앱이 열려요.
-    if (!a.dataset.copy) return;
-    const sr = a.querySelector<HTMLElement>('.sr')!;
-    let back = 0;
-    a.addEventListener('click', async (e) => {
-      try {
-        e.preventDefault();
-        await navigator.clipboard.writeText(a.dataset.copy!);
-        clearTimeout(back);
-        addr.dataset.now = 'Copied';
-        a.classList.add('copied');
-        scramble(addr, 'Copied');
-        sr.textContent = 'Copied';
-        back = window.setTimeout(() => {
-          delete addr.dataset.now;
-          a.classList.remove('copied');
-          scramble(addr, text);
-          sr.textContent = text;
-        }, 1600);
-      } catch {
-        location.href = a.href;
-      }
-    }, true);
-  });
-</script>
-
 <style>
-  .list { list-style: none; margin: clamp(24px, 3vw, 36px) 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-  a { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; text-decoration: none; }
-  .label {
-    font-size: var(--fs-xl); line-height: 1.1;
-    background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
-    background-position: 0 100%; background-size: 0% 2px; transition: background-size .4s var(--ease);
-  }
-  .addr { font-size: var(--fs-lead); color: var(--fg-3); }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .addr { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  a.copied .addr { color: var(--fg); opacity: 1 !important; }
-
-  /* 마우스가 있는 화면: 올리면 주소가 재조합되며 나타나요 */
-  @media (hover: hover) {
-    .addr { opacity: 0; transition: opacity .15s; }
-    a:hover .addr, a:focus-visible .addr { opacity: 1; }
-    a:hover .label, a:focus-visible .label { background-size: 100% 2px; }
-  }
-  /* 폰: 주소를 항상 이름 아래에 작게 */
-  @media (hover: none) {
-    a { flex-direction: column; gap: 2px; }
-    .list { gap: 20px; }
-  }
+  .cv { margin: clamp(32px, 4vw, 48px) 0 0; font-size: var(--fs-l); }
 </style>
