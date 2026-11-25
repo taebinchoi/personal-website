@@ -110,7 +110,7 @@ const { items } = Astro.props;
 </script>
 
 <style is:global>
-  @property --steep { syntax: '<percentage>'; inherits: false; initial-value: -30%; }
+  @property --steep { syntax: '<percentage>'; inherits: false; initial-value: -18%; }
   .tea { list-style: none; margin: clamp(28px, 4vw, 48px) 0 0; padding: 0; display: flex; flex-direction: column; gap: clamp(8px, 1.6vw, 20px); }
   .tea .item { display: flex; align-items: center; gap: clamp(16px, 3vw, 40px); }
   .tea .open { all: unset; cursor: pointer; display: block; flex: none; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
@@ -125,15 +125,15 @@ const { items } = Astro.props;
   .tea .cup { position: absolute; inset: 0; opacity: 0; transform: scale(.97); }
   .tea .cup img { position: absolute; inset: 0; }
   .tea .brew {
-    --steep: -30%;
+    --steep: -18%;
     -webkit-mask-image: radial-gradient(circle at 40% 49%, #000 var(--steep), transparent calc(var(--steep) + 22%));
             mask-image: radial-gradient(circle at 40% 49%, #000 var(--steep), transparent calc(var(--steep) + 22%));
   }
   .tea .on .cup { animation: tea-cup .9s cubic-bezier(.2, .7, .2, 1) 1s forwards; }
   @keyframes tea-cup { to { opacity: 1; transform: none; } }
-  .tea .on .water { animation: tea-fade 1.2s ease 4.2s forwards; }
+  .tea .on .water { animation: tea-fade 1s ease 3.4s forwards; }
   @keyframes tea-fade { to { opacity: 0; } }
-  .tea .on .brew { animation: tea-steep 3.4s cubic-bezier(.35, .1, .25, 1) 1.6s forwards; }
+  .tea .on .brew { animation: tea-steep 2.8s cubic-bezier(.3, .2, .25, 1) 1.25s forwards; }
   @keyframes tea-steep { to { --steep: 130%; } }
 
   /* 김 (11~3월): 글씨나 태그를 가리지 않게 옅게 */
