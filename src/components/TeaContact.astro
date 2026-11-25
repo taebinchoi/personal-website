@@ -11,12 +11,12 @@ const { items } = Astro.props;
       <button type="button" class="open" aria-label={`Open ${t.label}`} aria-expanded="false">
         <span class="stage">
           <span class="cup" aria-hidden="true">
-            <img class="water" src="/media/tea/water-v2.webp" alt="" width="640" height="573" decoding="async" />
-            <img class="brew" src={`/media/tea/${t.brew}-v2.webp`} alt="" width="640" height="573" decoding="async" />
+            <img class="water" data-src="/media/tea/water-v2.webp" alt="" width="640" height="573" decoding="async" />
+            <img class="brew" data-src={`/media/tea/${t.brew}-v2.webp`} alt="" width="640" height="573" decoding="async" />
             <span class="steam s1"></span><span class="steam s2"></span><span class="steam s3"></span>
           </span>
           <span class="pack" aria-hidden="true">
-            <span class="strip"><img src="/media/tea/sachet-v3.webp" alt="" width="309" height="600" decoding="async" /></span>
+            <span class="strip"><img src="/media/tea/sachet-v3.webp" fetchpriority="high" alt="" width="309" height="600" decoding="async" /></span>
             <span class="body">
               <img src="/media/tea/sachet-v3.webp" alt="" width="309" height="600" decoding="async" />
               <img class="band" src="/media/tea/sachet-v3.webp" alt="" width="309" height="600" decoding="async" style={`filter: hue-rotate(${t.hue}) ${t.dark ?? ''}`} />
@@ -72,7 +72,13 @@ const { items } = Astro.props;
       timers.set(el, requestAnimationFrame(frame));
     };
 
+    // 찻잔 사진은 봉지가 먼저 뜨도록 페이지가 다 열린 뒤에 받아요 (누르면 바로 받아요)
+    const loadCups = (scope: ParentNode = root) => scope.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => { img.src = img.dataset.src!; img.removeAttribute('data-src'); });
+    if (document.readyState === 'complete') setTimeout(() => loadCups(), 200);
+    else addEventListener('load', () => setTimeout(() => loadCups(), 200), { once: true });
+
     const open = (li: HTMLElement, instant: boolean) => {
+      loadCups(li);
       if (li.classList.contains('on')) return;
       const btn = li.querySelector<HTMLButtonElement>('.open')!;
       const addr = li.querySelector<HTMLElement>('.addr')!;
@@ -157,9 +163,9 @@ const { items } = Astro.props;
   .tea .body img { position: absolute; inset: 0; }
   .tea .band { clip-path: inset(66.4% 0 25.9% 0); }
   /* 종이 오른쪽 가장자리가 그늘져 좁아 보여서, 눈에 보이는 종이 가운데에 맞춰 살짝 왼쪽으로 */
-  .tea .name, .tea .flavor { position: absolute; left: 0; right: 5%; text-align: center; color: #23201D; font-weight: 700; font-stretch: 110%; line-height: 1; }
+  .tea .name, .tea .flavor { position: absolute; left: 0; right: 2.6%; text-align: center; color: #23201D; font-weight: 700; font-stretch: 110%; line-height: 1; }
   .tea .name { top: 37.5%; font-size: 13.5cqw; }
-  .tea .flavor { top: 79.5%; font-size: 5.4cqw; letter-spacing: .12em; padding-left: .12em; color: #5E5850; }
+  .tea .flavor { top: 79.5%; font-size: 6.1cqw; letter-spacing: .12em; padding-left: .12em; color: #5E5850; }
   .tea .on .strip { animation: tea-tear .85s cubic-bezier(.4, 0, .6, 1) forwards; }
   @keyframes tea-tear {
     0% { transform: none; opacity: 1; }
