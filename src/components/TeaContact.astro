@@ -196,7 +196,11 @@ const { items } = Astro.props;
 
   /* 폰: 주소는 이름 아래 줄, 한 줄에 들어가게 */
   @media (max-width: 640px) {
-    .tea .stage { width: clamp(120px, 36vw, 170px); }
+    .tea .stage { width: clamp(120px, 36vw, 170px); transition: width .55s cubic-bezier(.4, 0, .2, 1) .85s; }
+    /* 뜯기 전에는 옆에 글자가 없으니 봉지를 크게, 뜯으면 찻잔 크기로 줄어요 */
+    .tea .item:not(.on) .stage { width: min(68vw, 280px); }
+    .tea .pack { left: 0; transform: none; }
+    .tea .done .stage { transition: none; }
     .tea .txt { flex-direction: column; align-items: flex-start; row-gap: 4px; }
     .tea .addr { font-size: clamp(11.5px, 3.3vw, 15px); }
   }
