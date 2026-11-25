@@ -4,13 +4,13 @@ import { site } from '../site.config';
 import AmbientShader from '../components/AmbientShader.astro';
 import TeaContact from '../components/TeaContact.astro';
 
-// 티백 세 개: 차 이름과 색은 여기서 바꿔요
+// 티백 세 개: 차 이름, 우린 찻잔 사진(brew), 봉지 띠 색(hue)은 여기서 바꿔요
 const teas = [
-  { id: 'email', label: 'Email', flavor: 'HIBISCUS', tea: '#9A2E55', deep: '#5E1630', light: '#C25A80',
+  { id: 'email', label: 'Email', flavor: 'HIBISCUS', brew: 'hibiscus', hue: '0deg',
     href: site.links.email, show: site.links.email.replace('mailto:', ''), copy: true },
-  { id: 'instagram', label: 'Instagram', flavor: 'LAVENDER', tea: '#6A3FB8', deep: '#3A1F72', light: '#9370D8',
+  { id: 'instagram', label: 'Instagram', flavor: 'LAVENDER', brew: 'lavender', hue: '-95deg', dark: 'saturate(1.1)',
     href: site.links.instagram, show: '@' + site.links.instagram.split('/').filter(Boolean).pop() },
-  { id: 'github', label: 'GitHub', flavor: 'BLACKCURRANT', tea: '#5A1E48', deep: '#2A0C22', light: '#8A3A72',
+  { id: 'github', label: 'GitHub', flavor: 'BLACKCURRANT', brew: 'blackcurrant', hue: '-35deg', dark: 'brightness(.7)',
     href: site.links.github, show: site.links.github.replace('https://', '') },
 ].filter((t) => t.href);
 ---
