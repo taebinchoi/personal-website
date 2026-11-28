@@ -74,14 +74,21 @@ const { items } = Astro.props;
 
     // 찻잔 사진은 봉지가 먼저 뜨도록 페이지가 다 열린 뒤에 받아요 (누르면 바로 받아요)
     const loadCups = (scope: ParentNode = root) => scope.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => { img.src = img.dataset.src!; img.removeAttribute('data-src'); });
-    if (document.readyState === 'complete') setTimeout(() => loadCups(), 200);
-    else addEventListener('load', () => setTimeout(() => loadCups(), 200), { once: true });
+    // 봉지 사진이 뜨자마자 찻잔 사진을 받기 시작하고, 미리 풀어 둬서(decode) 누르는 순간 버벅이지 않게 해요
+    const warm = () => {
+      loadCups();
+      root.querySelectorAll<HTMLImageElement>('.cup img').forEach((img) => img.decode?.().catch(() => {}));
+    };
+    const first = root.querySelector<HTMLImageElement>('.strip img');
+    if (first && !first.complete) first.addEventListener('load', () => setTimeout(warm, 50), { once: true });
+    else setTimeout(warm, 50);
 
     const open = (li: HTMLElement, instant: boolean) => {
       loadCups(li);
       if (li.classList.contains('on')) return;
       const btn = li.querySelector<HTMLButtonElement>('.open')!;
       const addr = li.querySelector<HTMLElement>('.addr')!;
+      if (!instant && !still) (window as any).__calmUntil = performance.now() + 4800;
       if (instant || still) li.classList.add('done');
       li.classList.add('on');
       btn.setAttribute('aria-expanded', 'true');
@@ -119,7 +126,7 @@ const { items } = Astro.props;
   @property --steep { syntax: '<percentage>'; inherits: false; initial-value: -18%; }
   .tea { list-style: none; margin: clamp(28px, 4vw, 48px) 0 0; padding: 0; display: flex; flex-direction: column; gap: clamp(8px, 1.6vw, 20px); }
   .tea .item { display: flex; align-items: center; gap: clamp(16px, 3vw, 40px); }
-  .tea .open { all: unset; cursor: pointer; display: block; flex: none; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+  .tea .open { all: unset; cursor: pointer; touch-action: manipulation; display: block; flex: none; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
   .tea .on .open { cursor: default; }
   .tea .open:focus-visible, .tea .addr:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
@@ -196,7 +203,7 @@ const { items } = Astro.props;
 
   /* 폰: 주소는 이름 아래 줄, 한 줄에 들어가게 */
   @media (max-width: 640px) {
-    .tea .stage { width: clamp(120px, 36vw, 170px); transition: width .55s cubic-bezier(.4, 0, .2, 1) .85s; }
+    .tea .stage { width: clamp(120px, 36vw, 170px); transition: width 0s .95s; }
     /* 뜯기 전에는 옆에 글자가 없으니 봉지를 크게, 뜯으면 찻잔 크기로 줄어요 */
     .tea .item:not(.on) .stage { width: min(68vw, 280px); }
     .tea .pack { left: 0; transform: none; }
